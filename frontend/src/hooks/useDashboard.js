@@ -14,7 +14,7 @@ const getCurrentMonthIncome = (payments) => {
     .filter((p) => {
       const created = new Date(p.createdAt);
       return (
-        RENTAL_PAYMENT_TYPES.includes(p.type) &&
+        p.type !== "Devolucion" &&
         created.getMonth() === now.getMonth() &&
         created.getFullYear() === now.getFullYear()
       );
