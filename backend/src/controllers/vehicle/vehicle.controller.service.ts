@@ -63,7 +63,7 @@ export class VehicleControllerService {
 
   async getAll(req: Request, res: Response) {
     const isSuperAdmin = req.user!.role === "SuperAdmin";
-    const tenantId = isSuperAdmin
+    const tenantId = (isSuperAdmin && !req.user!.tenantId)
       ? (req.query.tenantId as string | undefined)
       : req.user!.tenantId;
 
