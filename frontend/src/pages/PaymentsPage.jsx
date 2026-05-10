@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trash2, ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { Trash2, ChevronDown, ChevronUp, Plus, Download } from "lucide-react";
 import { toast } from "sonner";
 import { usePermissions } from "../hooks/usePermissions";
 import { usePayments } from "../hooks/usePayments";
@@ -225,6 +225,13 @@ function RentalCard({ group, canDelete, onDelete, onSuccess }) {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span className="font-mono text-xs text-muted-foreground">{formatDate(p.createdAt)}</span>
+                <button
+                  onClick={() => paymentService.downloadPdfReceipt(p.id)}
+                  className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  title="Descargar recibo PDF"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                </button>
                 {canDelete && (
                   <button
                     onClick={() => onDelete(p)}
