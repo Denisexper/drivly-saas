@@ -14,3 +14,34 @@ export interface PaymentSummary {
     totalFinal: number
     pagos: Payment[]
 }
+
+export interface PaymentWithDetails {
+    id: string
+    amount: string
+    method: string
+    type: string
+    notes: string | null
+    createdAt: Date
+    rental: {
+        id: string
+        startDate: Date
+        endDate: Date
+        totalAmount: string
+        tenant: {
+            name: string
+            slug: string
+        }
+        client: {
+            firstName: string
+            lastName: string
+            email: string | null
+            phone: string
+            idNumber: string
+        }
+        vehicle: {
+            plate: string
+            brand: string
+            model: string
+        }
+    }
+}

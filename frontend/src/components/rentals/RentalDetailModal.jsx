@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
 import {
   DialogRoot,
   DialogContent,
@@ -72,6 +73,14 @@ function SummarySkeleton() {
   );
 }
 
+async function handleDownloadReceipt(paymentId) {
+  try {
+    await paymentService.downloadPdfReceipt(paymentId);
+  } catch {
+    // silencioso — el operador verá que no descargó nada
+  }
+}
+
 function FinancialSummary({ summary, loading }) {
   if (loading) return <SummarySkeleton />;
   if (!summary) return null;
@@ -141,6 +150,13 @@ function FinancialSummary({ summary, loading }) {
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="font-mono font-medium">{fmt(p.amount)}</span>
                   <span className="text-xs text-muted-foreground">{formatDate(p.createdAt)}</span>
+                  <button
+                    onClick={() => handleDownloadReceipt(p.id)}
+                    title="Descargar recibo PDF"
+                    className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               </div>
             ))}

@@ -1,6 +1,6 @@
 import { Payment, PrismaClient } from "@prisma/client";
 import { PaymentRepositoryInterface } from "../../interfaces/payment/payment.repository.interface";
-import { CreatePaymentInput, PaymentSummary } from "../../types/payment/payment.types";
+import { CreatePaymentInput, PaymentSummary, PaymentWithDetails } from "../../types/payment/payment.types";
 
 const RENTAL_PAYMENT_TYPES = ["Deposito", "PagoAlquiler"] as const;
 const EXTRA_CHARGE_TYPES = ["CobroDano", "CobroCombustible", "CobrodiaExtra"] as const;
@@ -16,6 +16,45 @@ export class PaymentRepository implements PaymentRepositoryInterface {
     async getById(id: string): Promise<Payment | null> {
         try {
             return await this.prisma.payment.findUnique({ where: { id } })
+        } catch (error) {
+            throw new Error(`${error}`)
+        }
+    }
+
+    async getByIdWithDetails(id: string): Promise<PaymentWithDetails | null> {
+        try {
+            const payment = await this.prisma.payment.findUnique({
+                where: { id },
+                include: {
+                    rental: {
+                        include: {
+                            tenant: { select: { name: true, slug: true } },
+                            client: { select: { firstName: true, lastName: true, email: true, phone: true, idNumber: true } },
+                            vehicle: { select: { plate: true, brand: true, model: true } },
+                        },
+                    },
+                },
+            })
+
+            if (!payment) return null
+
+            return {
+                id: payment.id,
+                amount: payment.amount.toString(),
+                method: payment.method,
+                type: payment.type,
+                notes: payment.notes,
+                createdAt: payment.createdAt,
+                rental: {
+                    id: payment.rental.id,
+                    startDate: payment.rental.startDate,
+                    endDate: payment.rental.endDate,
+                    totalAmount: payment.rental.totalAmount.toString(),
+                    tenant: payment.rental.tenant,
+                    client: payment.rental.client,
+                    vehicle: payment.rental.vehicle,
+                },
+            }
         } catch (error) {
             throw new Error(`${error}`)
         }

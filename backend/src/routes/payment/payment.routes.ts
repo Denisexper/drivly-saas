@@ -24,6 +24,13 @@ export class PaymentRoutes {
       (req: Request, res: Response) => this.controller.getAll(req, res)
     );
     this.router.get(
+      "/:id/pdf-receipt",
+      authMiddleware,
+      tenantMiddleware,
+      checkPermission("payments:read"),
+      (req: Request<{ id: string }>, res: Response) => this.controller.getPdfReceipt(req, res)
+    );
+    this.router.get(
       "/:id",
       authMiddleware,
       tenantMiddleware,

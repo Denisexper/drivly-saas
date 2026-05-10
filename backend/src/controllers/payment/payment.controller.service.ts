@@ -1,6 +1,7 @@
 import { PaymentRepositoryInterface } from "../../interfaces/payment/payment.repository.interface";
 import { Request, Response } from "express";
 import { CreatePaymentInput } from "../../types/payment/payment.types";
+import { generatePaymentReceiptPDF } from "../../utils/pdf";
 
 export class PaymentControllerService {
   constructor(private readonly repository: PaymentRepositoryInterface) {}
@@ -81,6 +82,18 @@ export class PaymentControllerService {
     } catch (error: any) {
       if (error.code === "P2025") return res.status(404).json({ msj: "Payment not found" });
       console.error(`[PaymentController] Error en delete(${id}):`, error);
+      return res.status(500).json({ msj: "Server error", error: error.message });
+    }
+  }
+
+  async getPdfReceipt(req: Request<{ id: string }>, res: Response) {
+    const { id } = req.params;
+    try {
+      const payment = await this.repository.getByIdWithDetails(id);
+      if (!payment) return res.status(404).json({ msj: "Payment not found" });
+      generatePaymentReceiptPDF(payment, res);
+    } catch (error: any) {
+      console.error(`[PaymentController] Error en getPdfReceipt(${id}):`, error);
       return res.status(500).json({ msj: "Server error", error: error.message });
     }
   }
