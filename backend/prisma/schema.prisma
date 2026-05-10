@@ -8,13 +8,14 @@ datasource db {
 
 // ── TENANT (empresa cliente del SaaS) ─────────
 model Tenant {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  plan      Plan     @default(Basic)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  name               String
+  slug               String   @unique
+  plan               Plan     @default(Basic)
+  active             Boolean  @default(true)
+  emailNotifications Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   users           User[]
   vehicles        Vehicle[]

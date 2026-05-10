@@ -7,6 +7,7 @@ import {
 } from "../../types/tenant/tenant.types";
 import { slugify } from "../../utils/slugify";
 import { EncryptService } from "../../services/encrypt.service";
+import { sendWelcomeEmail } from "../../email/email.service";
 
 export class TenantControllerService {
   private repository: TenantRepositoryInterface;
@@ -135,6 +136,10 @@ export class TenantControllerService {
       );
 
       await seedTenantDefaultPermissions(tenant.id);
+
+      sendWelcomeEmail({ adminName, adminEmail, tenantName: tenant.name, tenantSlug: tenant.slug }).catch(
+        (err) => console.error("[Email] sendWelcomeEmail failed:", err)
+      );
 
       return res.status(201).json({
         msj: "Empresa creada exitosamente",

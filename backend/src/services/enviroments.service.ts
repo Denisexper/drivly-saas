@@ -9,7 +9,10 @@ const requiredEnvVars = [
   "JWT_EXPIRES_IN",
   "CLOUDINARY_CLOUD_NAME",
   "CLOUDINARY_API_KEY",
-  "CLOUDINARY_API_SECRET"
+  "CLOUDINARY_API_SECRET",
+  "RESEND_API_KEY",
+  "EMAIL_FROM",
+  "FRONTEND_URL"
 ];
 
 requiredEnvVars.forEach((env) => {
@@ -26,3 +29,6 @@ export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 export const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
 export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
+export const RESEND_API_KEY = process.env.RESEND_API_KEY!;
+export const EMAIL_FROM = process.env.EMAIL_FROM!;
+export const FRONTEND_URL = process.env.FRONTEND_URL!;

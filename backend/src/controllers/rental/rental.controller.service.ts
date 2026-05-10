@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { RentalRepositoryInterface } from "../../interfaces/rental/rental.repository.interface";
 import { CreateRentalBody, ReturnRentalInput, UpdateRentalInput } from "../../types/rental/rental.types";
+import { sendRentalConfirmEmail, sendRentalReturnEmail } from "../../email/email.service";
 
 export class RentalControllerService {
   constructor(private readonly repository: RentalRepositoryInterface) {}
@@ -101,6 +102,8 @@ export class RentalControllerService {
         fuelIn: null,
       });
 
+      sendRentalConfirmEmail(rental.id).catch((err) => console.error("[Email] sendRentalConfirmEmail failed:", err));
+
       return res.status(201).json({ msj: "Rental created successfully", data: rental });
     } catch (error: any) {
       if (error.status) return res.status(error.status).json({ msj: error.message });
@@ -130,6 +133,9 @@ export class RentalControllerService {
           notes: data.notes ?? undefined,
         };
         const completed = await this.repository.returnVehicle(id, returnData);
+
+        sendRentalReturnEmail(id).catch((err) => console.error("[Email] sendRentalReturnEmail failed:", err));
+
         return res.status(200).json({ msj: "Rental completed and vehicle returned successfully", data: completed });
       }
 

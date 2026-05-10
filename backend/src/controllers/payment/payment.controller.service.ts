@@ -2,6 +2,7 @@ import { PaymentRepositoryInterface } from "../../interfaces/payment/payment.rep
 import { Request, Response } from "express";
 import { CreatePaymentInput } from "../../types/payment/payment.types";
 import { generatePaymentReceiptPDF } from "../../utils/pdf";
+import { sendPaymentReceiptEmail } from "../../email/email.service";
 
 export class PaymentControllerService {
   constructor(private readonly repository: PaymentRepositoryInterface) {}
@@ -42,6 +43,9 @@ export class PaymentControllerService {
     const data: CreatePaymentInput = req.body;
     try {
       const response = await this.repository.create(data);
+
+      sendPaymentReceiptEmail(response.id).catch((err) => console.error("[Email] sendPaymentReceiptEmail failed:", err));
+
       return res.status(201).json({
         msj: "Payment created successfully",
         data: {
