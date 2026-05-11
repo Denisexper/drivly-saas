@@ -11,20 +11,22 @@ import {
   LogOut,
   BarChart2,
   AlertCircle,
+  Settings,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { usePermissions } from "@/hooks/usePermissions";
 
 const navItems = [
-  { to: "/dashboard", label: "Dashboard",         icon: LayoutDashboard, permission: null },
-  { to: "/vehicles",  label: "Vehículos",          icon: Car,             permission: "vehicles:read" },
-  { to: "/customers", label: "Clientes",           icon: Users,           permission: "clients:read" },
-  { to: "/rentals",   label: "Alquileres",         icon: FileText,        permission: "rentals:read" },
-  { to: "/payments",  label: "Pagos",              icon: CreditCard,      permission: "payments:read" },
-  { to: "/users",          label: "Usuarios",           icon: UserCog,       permission: "users:read" },
-  { to: "/roles",          label: "Roles y Permisos",   icon: KeyRound,      permission: "roles:manage" },
-  { to: "/cierre-caja",    label: "Cierre de Caja",     icon: BarChart2,     permission: "reports:read" },
-  { to: "/cuentas-cobrar", label: "Cuentas por Cobrar", icon: AlertCircle,   permission: "reports:read" },
+  { to: "/dashboard",      label: "Dashboard",          icon: LayoutDashboard, permission: null },
+  { to: "/vehicles",       label: "Vehículos",           icon: Car,             permission: "vehicles:read" },
+  { to: "/customers",      label: "Clientes",            icon: Users,           permission: "clients:read" },
+  { to: "/rentals",        label: "Alquileres",          icon: FileText,        permission: "rentals:read" },
+  { to: "/payments",       label: "Pagos",               icon: CreditCard,      permission: "payments:read" },
+  { to: "/users",          label: "Usuarios",            icon: UserCog,         permission: "users:read" },
+  { to: "/roles",          label: "Roles y Permisos",    icon: KeyRound,        permission: "roles:manage" },
+  { to: "/cierre-caja",    label: "Cierre de Caja",      icon: BarChart2,       permission: "reports:read" },
+  { to: "/cuentas-cobrar", label: "Cuentas por Cobrar",  icon: AlertCircle,     permission: "reports:read" },
+  { to: "/settings",       label: "Configuración",       icon: Settings,        permission: null, adminOnly: true },
 ];
 
 export default function Sidebar() {
@@ -48,7 +50,9 @@ export default function Sidebar() {
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems
-          .filter(({ permission }) => !permission || can(permission))
+          .filter(({ permission, adminOnly }) =>
+            (!permission || can(permission)) && (!adminOnly || role === "Admin")
+          )
           .map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}

@@ -13,6 +13,7 @@ import UsersPage from "@/pages/UsersPage";
 import RolesPage from "@/pages/RolesPage";
 import DailySummaryPage from "@/pages/DailySummaryPage";
 import ReceivablesPage from "@/pages/ReceivablesPage";
+import SettingsPage from "@/pages/SettingsPage";
 import SuperAdminDashboard from "@/pages/superadmin/SuperAdminDashboard";
 import SATenantsPage from "@/pages/superadmin/SATenantsPage";
 import SAVehiclesPage from "@/pages/superadmin/SAVehiclesPage";
@@ -61,6 +62,7 @@ function App() {
           <Route path="/roles"          element={<RolesPage />} />
           <Route path="/cierre-caja"    element={<DailySummaryPage />} />
           <Route path="/cuentas-cobrar" element={<ReceivablesPage />} />
+          <Route path="/settings"       element={<SettingsPage />} />
           <Route index element={<Navigate to="/dashboard" replace />} />
         </Route>
 

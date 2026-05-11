@@ -54,6 +54,10 @@ import { ReportRepository } from "../repositories/report/report.repository";
 import { ReportControllerService } from "../controllers/report/report.controller.service";
 import { ReportRoutes } from "./report/report.routes";
 
+//importaciones modulo settings
+import { SettingsControllerService } from "../controllers/settings/settings.controller.service";
+import { SettingsRoutes } from "./settings/settings.routes";
+
 export class AppRoutes {
   static get routes(): Router {
     const router = Router();
@@ -110,6 +114,10 @@ export class AppRoutes {
     const reportCtrl = new ReportControllerService(reportRepo)
     const reportRoutes = new ReportRoutes(Router(), reportCtrl)
 
+    // --- configuracion Modulo Settings ---
+    const settingsCtrl = new SettingsControllerService(tenantRepo)
+    const settingsRoutes = new SettingsRoutes(Router(), settingsCtrl)
+
     // --- Definición de Prefijos de Ruta ---
     router.use("/auth", authRoutes.initRoutes());
     router.use("/clients", clientRoutes.initRoutes());
@@ -121,6 +129,7 @@ export class AppRoutes {
     router.use("/users", userRoutes.initRoutes());
     router.use("/vehicles", vehicleRoutes.initRoutes());
     router.use("/reports", reportRoutes.initRoutes());
+    router.use("/settings", settingsRoutes.initRoutes());
 
     return router;
   }
