@@ -19,9 +19,8 @@ export async function sendRentalConfirmEmail(rentalId: string): Promise<void> {
   if (!rental || !rental.tenant.emailNotifications || !rental.client.email) return;
 
   const { subject, html } = buildRentalConfirmEmail(rental);
-  const recipients = [rental.client.email, rental.user.email].filter(Boolean);
 
-  await resend.emails.send({ from: EMAIL_FROM, to: recipients, subject, html });
+  await resend.emails.send({ from: EMAIL_FROM, to: rental.client.email, subject, html });
 }
 
 export async function sendRentalReturnEmail(rentalId: string): Promise<void> {
@@ -33,9 +32,8 @@ export async function sendRentalReturnEmail(rentalId: string): Promise<void> {
   if (!rental || !rental.tenant.emailNotifications || !rental.client.email) return;
 
   const { subject, html } = buildRentalReturnEmail(rental);
-  const recipients = [rental.client.email, rental.user.email].filter(Boolean);
 
-  await resend.emails.send({ from: EMAIL_FROM, to: recipients, subject, html });
+  await resend.emails.send({ from: EMAIL_FROM, to: rental.client.email, subject, html });
 }
 
 export async function sendPaymentReceiptEmail(paymentId: string): Promise<void> {
