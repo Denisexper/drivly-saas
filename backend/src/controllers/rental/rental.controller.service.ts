@@ -3,6 +3,21 @@ import { RentalRepositoryInterface } from "../../interfaces/rental/rental.reposi
 import { CreateRentalBody, ReturnRentalInput, UpdateRentalInput } from "../../types/rental/rental.types";
 import { sendRentalConfirmEmail, sendRentalReturnEmail } from "../../email/email.service";
 import { logAction } from "../../utils/audit";
+import { Rental } from "@prisma/client";
+
+// Solo los campos escalares del alquiler, sin relaciones ni datos sensibles
+function sanitizeRental(r: Rental) {
+  return {
+    id: r.id, tenantId: r.tenantId, vehicleId: r.vehicleId, clientId: r.clientId,
+    userId: r.userId, status: r.status, startDate: r.startDate, endDate: r.endDate,
+    actualReturn: r.actualReturn, dailyRate: Number(r.dailyRate), totalDays: r.totalDays,
+    subtotal: Number(r.subtotal), discount: Number(r.discount),
+    extraCharges: Number(r.extraCharges), totalAmount: Number(r.totalAmount),
+    deposit: Number(r.deposit),
+    mileageStart: r.mileageStart, mileageEnd: r.mileageEnd,
+    fuelOut: r.fuelOut, fuelIn: r.fuelIn, notes: r.notes,
+  };
+}
 
 export class RentalControllerService {
   constructor(private readonly repository: RentalRepositoryInterface) {}
@@ -104,7 +119,7 @@ export class RentalControllerService {
       });
 
       sendRentalConfirmEmail(rental.id).catch((err) => console.error("[Email] sendRentalConfirmEmail failed:", err));
-      logAction({ req, action: "CREATE", entity: "Rental", entityId: rental.id, after: rental });
+      logAction({ req, action: "CREATE", entity: "Rental", entityId: rental.id, after: sanitizeRental(rental) });
 
       return res.status(201).json({ msj: "Rental created successfully", data: rental });
     } catch (error: any) {
@@ -137,7 +152,7 @@ export class RentalControllerService {
         const completed = await this.repository.returnVehicle(id, returnData);
 
         sendRentalReturnEmail(id).catch((err) => console.error("[Email] sendRentalReturnEmail failed:", err));
-        logAction({ req, action: "RETURN", entity: "Rental", entityId: id, before: rentalExist, after: completed });
+        logAction({ req, action: "RETURN", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist), after: sanitizeRental(completed) });
 
         return res.status(200).json({ msj: "Rental completed and vehicle returned successfully", data: completed });
       }
@@ -145,12 +160,12 @@ export class RentalControllerService {
       // Flujo de cancelacion
       if (data.status === "Cancelled") {
         const cancelled = await this.repository.cancelRental(id, data.notes ?? undefined);
-        logAction({ req, action: "CANCEL", entity: "Rental", entityId: id, before: rentalExist, after: cancelled });
+        logAction({ req, action: "CANCEL", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist), after: sanitizeRental(cancelled) });
         return res.status(200).json({ msj: "Rental cancelled and vehicle released successfully", data: cancelled });
       }
 
       const updated = await this.repository.update(id, data);
-      logAction({ req, action: "UPDATE", entity: "Rental", entityId: id, before: rentalExist, after: updated });
+      logAction({ req, action: "UPDATE", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist), after: sanitizeRental(updated) });
       return res.status(200).json({ msj: "Rental updated successfully", data: updated });
     } catch (error: any) {
       if (error.status) return res.status(error.status).json({ msj: error.message });
@@ -182,7 +197,7 @@ export class RentalControllerService {
       }
 
       await this.repository.delete(id);
-      logAction({ req, action: "DELETE", entity: "Rental", entityId: id, before: rentalExist });
+      logAction({ req, action: "DELETE", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist) });
       return res.status(200).json({ msj: "Rental deleted successfully" });
     } catch (error: any) {
       if (error.code === "P2025") return res.status(404).json({ msj: "Rental not found" });

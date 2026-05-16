@@ -8,6 +8,7 @@ import { TenantRepositoryInterface } from "../../interfaces/tenant/tenant.reposi
 import { slugify } from "../../utils/slugify";
 import { sendWelcomeEmail, sendPasswordResetEmail } from "../../email/email.service";
 import { seedTenantDefaultPermissions } from "../../permissions/sync";
+import { logAction } from "../../utils/audit";
 
 
 export class AuthControllerService {
@@ -222,6 +223,15 @@ export class AuthControllerService {
                 tenantId: userExist.tenantId,
                 role: userExist.role,
                 email: userExist.email,
+            });
+
+            logAction({
+                req,
+                action: "LOGIN",
+                entity: "Auth",
+                entityId: userExist.id,
+                userOverride: { id: userExist.id, email: userExist.email, tenantId: userExist.tenantId },
+                after: { role: userExist.role, slug: slug ?? null },
             });
 
             return res.status(200).json({

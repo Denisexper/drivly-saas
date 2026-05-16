@@ -4,7 +4,8 @@ export type AuditAction =
   | "DELETE"
   | "RETURN"
   | "CANCEL"
-  | "UPLOAD_PHOTOS";
+  | "UPLOAD_PHOTOS"
+  | "LOGIN";
 
 export type AuditEntity =
   | "Vehicle"
@@ -12,7 +13,8 @@ export type AuditEntity =
   | "Rental"
   | "Payment"
   | "User"
-  | "Tenant";
+  | "Tenant"
+  | "Auth";
 
 export interface AuditLogEntry {
   id: string;

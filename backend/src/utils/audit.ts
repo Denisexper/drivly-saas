@@ -9,23 +9,29 @@ interface LogActionParams {
   entityId: string;
   before?: Record<string, any> | null;
   after?: Record<string, any> | null;
+  // Permite sobrescribir datos del usuario cuando req.user aún no está disponible (ej. login)
+  userOverride?: { id: string; email: string; tenantId?: string | null };
 }
 
-export function logAction({ req, action, entity, entityId, before = null, after = null }: LogActionParams): void {
+export function logAction({ req, action, entity, entityId, before = null, after = null, userOverride }: LogActionParams): void {
+  const userId    = userOverride?.id    ?? req.user!.id;
+  const userEmail = userOverride?.email ?? req.user!.email;
+  const tenantId  = userOverride?.tenantId !== undefined ? userOverride.tenantId : (req.user?.tenantId ?? null);
+
   prisma.auditLog
     .create({
       data: {
-        tenantId:  req.user!.tenantId ?? null,
-        userId:    req.user!.id,
-        userEmail: req.user!.email,
+        tenantId,
+        userId,
+        userEmail,
         action,
         entity,
         entityId,
         resource:  req.originalUrl,
         method:    req.method,
-        before:    before  ?? undefined,
-        after:     after   ?? undefined,
-        ip:        req.ip  ?? null,
+        before:    before ?? undefined,
+        after:     after  ?? undefined,
+        ip:        req.ip ?? null,
         userAgent: req.headers["user-agent"] ?? null,
       },
     })
