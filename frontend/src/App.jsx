@@ -4,6 +4,9 @@ import MainLayout from "@/components/layout/MainLayout";
 import SuperAdminLayout from "@/components/layout/SuperAdminLayout";
 import LoginPage from "@/pages/LoginPage";
 import WelcomePage from "@/pages/WelcomePage";
+import RegisterPage from "@/pages/RegisterPage";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import DashboardPage from "@/pages/DashboardPage";
 import VehiclesPage from "@/pages/VehiclesPage";
 import CustomersPage from "@/pages/CustomersPage";
@@ -27,6 +30,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<WelcomePage />} />
         <Route path="/login/:slug" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* Universo SuperAdmin */}
         <Route

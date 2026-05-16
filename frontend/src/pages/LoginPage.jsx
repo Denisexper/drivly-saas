@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -206,9 +206,18 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center text-xs text-muted-foreground">
-            Al iniciar sesión aceptas los términos y condiciones del sistema
-          </p>
+          <div className="space-y-2 text-center">
+            {!isSuperAdmin && (
+              <p className="text-sm text-muted-foreground">
+                <Link to="/forgot-password" className="text-blue-500 hover:underline">
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Al iniciar sesión aceptas los términos y condiciones del sistema
+            </p>
+          </div>
         </div>
       </div>
     </div>

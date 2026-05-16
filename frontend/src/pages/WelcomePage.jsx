@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Building2, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -123,15 +123,23 @@ export default function WelcomePage() {
             </Button>
           </form>
 
-          <p className="text-center text-xs text-muted-foreground">
-            ¿Eres el administrador del sistema?{" "}
-            <button
-              onClick={() => navigate("/login/superadmin")}
-              className="text-purple-500 hover:underline font-medium"
-            >
-              Acceso SuperAdmin
-            </button>
-          </p>
+          <div className="space-y-2 text-center">
+            <p className="text-sm text-muted-foreground">
+              ¿No tienes cuenta?{" "}
+              <Link to="/register" className="text-blue-500 hover:underline font-medium">
+                Crea tu empresa gratis
+              </Link>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              ¿Eres el administrador del sistema?{" "}
+              <button
+                onClick={() => navigate("/login/superadmin")}
+                className="text-purple-500 hover:underline font-medium"
+              >
+                Acceso SuperAdmin
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>
