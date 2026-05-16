@@ -1,9 +1,9 @@
 import { Router, Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 import { AuthControllerService } from "../../controllers/auth/auth.controller.service";
-import { LoginInput, RegisterInput } from "../../types/auth/auth.type";
+import { LoginInput, RegisterInput, CompanyRegisterInput } from "../../types/auth/auth.type";
 import { validate } from "../../middlewares/validate.middleware";
-import { loginSchema, registerSchema } from "../../schemas/auth.schema";
+import { loginSchema, registerSchema, companyRegisterSchema } from "../../schemas/auth.schema";
 import { authMiddleware } from "../../middlewares/auth.moddleware";
 import { authorizeRoles } from "../../middlewares/role.moddleware";
 
@@ -30,6 +30,7 @@ export class AuthRoutes {
     initRoutes () {
         this.router.post("/login", loginLimiter, validate(loginSchema), (req: Request<{}, {}, LoginInput>, res: Response, next: NextFunction) => this.controller.login(req, res, next));
         this.router.post("/register", validate(registerSchema), (req: Request<{}, {}, RegisterInput>, res: Response, next: NextFunction) => this.controller.register(req, res, next));
+        this.router.post("/register-company", validate(companyRegisterSchema), (req: Request<{}, {}, CompanyRegisterInput>, res: Response, next: NextFunction) => this.controller.registerCompany(req, res, next));
         this.router.post("/impersonate/:tenantId", authMiddleware, authorizeRoles("SuperAdmin"), (req: Request<{ tenantId: string }>, res: Response, next: NextFunction) => this.controller.impersonate(req, res, next));
 
         return this.router;

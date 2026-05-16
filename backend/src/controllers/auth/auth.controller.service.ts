@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { LoginInput, RegisterInput } from "../../types/auth/auth.type";
+import { LoginInput, RegisterInput, CompanyRegisterInput } from "../../types/auth/auth.type";
 import { EncryptService } from "../../services/encrypt.service";
 import { generateToken } from "../../utils/generateToken";
 import { AuthRepository } from "../../repositories/auth/auth.repository";
 import { TenantRepositoryInterface } from "../../interfaces/tenant/tenant.repository.interface";
+import { slugify } from "../../utils/slugify";
+import { sendWelcomeEmail } from "../../email/email.service";
+import { seedTenantDefaultPermissions } from "../../permissions/sync";
 
 
 export class AuthControllerService {
@@ -74,6 +77,57 @@ export class AuthControllerService {
                     email: newUser.email,
                     tenantId: newUser.tenantId,
                     role: newUser.role,
+                },
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async registerCompany(req: Request<{}, {}, CompanyRegisterInput>, res: Response, next: NextFunction) {
+        const { companyName, ownerName, ownerEmail, ownerPassword } = req.body;
+
+        try {
+            const emailInUse = await this.authRepo.findByEmail(ownerEmail);
+            if (emailInUse) return next({ status: 400, message: "Ya existe una cuenta con ese email" });
+
+            const baseSlug = slugify(companyName);
+            let slug = baseSlug;
+            let attempt = 1;
+            while (await this.authRepo.findBySlug(slug)) {
+                slug = `${baseSlug}-${attempt++}`;
+            }
+
+            const hashedPassword = await EncryptService.hashPassword(ownerPassword);
+            const trialEndsAt = new Date();
+            trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
+            const { tenant, user } = await this.authRepo.registerCompany({
+                tenantName: companyName,
+                slug,
+                ownerName,
+                ownerEmail,
+                hashedPassword,
+                trialEndsAt,
+            });
+
+            await seedTenantDefaultPermissions(tenant.id);
+
+            sendWelcomeEmail({
+                adminName: ownerName,
+                adminEmail: ownerEmail,
+                tenantName: tenant.name,
+                tenantSlug: tenant.slug,
+            }).catch((err) => console.error("[Email] sendWelcomeEmail failed:", err));
+
+            return res.status(201).json({
+                msj: "Empresa creada exitosamente",
+                data: {
+                    tenantId: tenant.id,
+                    tenantName: tenant.name,
+                    slug: tenant.slug,
+                    trialEndsAt: tenant.trialEndsAt,
+                    adminEmail: user.email,
                 },
             });
         } catch (error) {
