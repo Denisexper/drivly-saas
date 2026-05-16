@@ -8,14 +8,16 @@ datasource db {
 
 // ── TENANT (empresa cliente del SaaS) ─────────
 model Tenant {
-  id                 String   @id @default(cuid())
+  id                 String    @id @default(cuid())
   name               String
-  slug               String   @unique
-  plan               Plan     @default(Basic)
-  active             Boolean  @default(true)
-  emailNotifications Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  slug               String    @unique
+  plan               Plan      @default(Basic)
+  active             Boolean   @default(true)
+  emailNotifications Boolean   @default(true)
+  trialActive        Boolean   @default(false)
+  trialEndsAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   users           User[]
   vehicles        Vehicle[]
@@ -37,8 +39,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  customRoleId String?
-  customRole   CustomRole? @relation(fields: [customRoleId], references: [id])
+  customRoleId           String?
+  customRole             CustomRole? @relation(fields: [customRoleId], references: [id])
+  passwordResetToken     String?
+  passwordResetExpiresAt DateTime?
 
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   rentals   Rental[]
