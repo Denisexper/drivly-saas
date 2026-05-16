@@ -19,3 +19,12 @@ export const companyRegisterSchema = z.object({
   ownerEmail: z.string().email("Email inválido"),
   ownerPassword: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Email inválido"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token requerido"),
+  newPassword: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});

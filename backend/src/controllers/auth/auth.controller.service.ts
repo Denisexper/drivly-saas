@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express";
+import { randomUUID } from "crypto";
 import { LoginInput, RegisterInput, CompanyRegisterInput } from "../../types/auth/auth.type";
 import { EncryptService } from "../../services/encrypt.service";
 import { generateToken } from "../../utils/generateToken";
 import { AuthRepository } from "../../repositories/auth/auth.repository";
 import { TenantRepositoryInterface } from "../../interfaces/tenant/tenant.repository.interface";
 import { slugify } from "../../utils/slugify";
-import { sendWelcomeEmail } from "../../email/email.service";
+import { sendWelcomeEmail, sendPasswordResetEmail } from "../../email/email.service";
 import { seedTenantDefaultPermissions } from "../../permissions/sync";
 
 
@@ -130,6 +131,52 @@ export class AuthControllerService {
                     adminEmail: user.email,
                 },
             });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async forgotPassword(req: Request, res: Response, next: NextFunction) {
+        const { email } = req.body;
+
+        try {
+            const user = await this.authRepo.findByEmail(email);
+
+            // Respuesta genérica para no revelar si el email existe
+            if (!user) {
+                return res.status(200).json({ msj: "Si ese email existe, recibirás instrucciones en breve." });
+            }
+
+            const token = randomUUID();
+            const expiresAt = new Date();
+            expiresAt.setHours(expiresAt.getHours() + 1);
+
+            await this.authRepo.setPasswordResetToken(user.id, token, expiresAt);
+
+            sendPasswordResetEmail({
+                userName: user.name,
+                userEmail: user.email,
+                resetToken: token,
+            }).catch((err) => console.error("[Email] sendPasswordResetEmail failed:", err));
+
+            return res.status(200).json({ msj: "Si ese email existe, recibirás instrucciones en breve." });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async resetPassword(req: Request, res: Response, next: NextFunction) {
+        const { token, newPassword } = req.body;
+
+        try {
+            const user = await this.authRepo.findByPasswordResetToken(token);
+
+            if (!user) return next({ status: 400, message: "Token inválido o expirado" });
+
+            const hashedPassword = await EncryptService.hashPassword(newPassword);
+            await this.authRepo.resetPassword(user.id, hashedPassword);
+
+            return res.status(200).json({ msj: "Contraseña actualizada exitosamente" });
         } catch (error) {
             next(error);
         }

@@ -4,10 +4,20 @@ import { buildWelcomeEmail, WelcomeEmailData } from "./templates/welcome.templat
 import { buildRentalConfirmEmail } from "./templates/rental-confirm.template";
 import { buildRentalReturnEmail } from "./templates/rental-return.template";
 import { buildPaymentReceiptEmail } from "./templates/payment-receipt.template";
+import { buildPasswordResetEmail } from "./templates/password-reset.template";
 
 export async function sendWelcomeEmail(data: WelcomeEmailData): Promise<void> {
   const { subject, html } = buildWelcomeEmail(data);
   await resend.emails.send({ from: EMAIL_FROM, to: data.adminEmail, subject, html });
+}
+
+export async function sendPasswordResetEmail(data: {
+  userName: string;
+  userEmail: string;
+  resetToken: string;
+}): Promise<void> {
+  const { subject, html } = buildPasswordResetEmail(data);
+  await resend.emails.send({ from: EMAIL_FROM, to: data.userEmail, subject, html });
 }
 
 export async function sendRentalConfirmEmail(rentalId: string): Promise<void> {
