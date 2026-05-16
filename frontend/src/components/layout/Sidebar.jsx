@@ -12,6 +12,7 @@ import {
   BarChart2,
   AlertCircle,
   Settings,
+  ClipboardList,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -26,6 +27,7 @@ const navItems = [
   { to: "/roles",          label: "Roles y Permisos",    icon: KeyRound,        permission: "roles:manage" },
   { to: "/cierre-caja",    label: "Cierre de Caja",      icon: BarChart2,       permission: "reports:read" },
   { to: "/cuentas-cobrar", label: "Cuentas por Cobrar",  icon: AlertCircle,     permission: "reports:read" },
+  { to: "/audit",          label: "Logs de Auditoría",   icon: ClipboardList,   permission: "audit:read" },
   { to: "/settings",       label: "Configuración",       icon: Settings,        permission: null, adminOnly: true },
 ];
 
