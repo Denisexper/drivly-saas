@@ -11,6 +11,7 @@ declare global {
         tenantId: string;
         role: string;
         email: string;
+        isImpersonating?: boolean;
       };
     }
   }

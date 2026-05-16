@@ -8,6 +8,7 @@ interface TokenPayload {
   tenantId: string;
   role: string;
   email: string;
+  isImpersonating?: boolean;
 }
 
 //funicon para generar el token

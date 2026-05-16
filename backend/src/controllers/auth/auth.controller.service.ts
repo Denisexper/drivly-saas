@@ -29,6 +29,7 @@ export class AuthControllerService {
                 tenantId: tenant.id,
                 role: req.user!.role,
                 email: req.user!.email,
+                isImpersonating: true,
             });
 
             return res.status(200).json({

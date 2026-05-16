@@ -39,6 +39,7 @@ export const authMiddleware = (
       tenantId: decoded.tenantId,
       role: decoded.role,
       email: decoded.email,
+      isImpersonating: decoded.isImpersonating ?? false,
     };
 
     //si todo esta bien pasamos al controlador o a la ruta de la peticion

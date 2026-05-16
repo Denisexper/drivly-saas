@@ -19,7 +19,7 @@ export class RentalControllerService {
 
   async getAll(req: Request, res: Response) {
     const isSuperAdmin = req.user!.role === "SuperAdmin";
-    const tenantId = (isSuperAdmin && !req.user!.tenantId)
+    const tenantId = (isSuperAdmin && !req.user!.isImpersonating)
       ? (req.query.tenantId as string | undefined)
       : req.user!.tenantId;
     const status = req.query.status as string | undefined;
