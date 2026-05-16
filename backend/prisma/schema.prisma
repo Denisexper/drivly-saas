@@ -211,6 +211,30 @@ model Payment {
   rental    Rental        @relation(fields: [rentalId], references: [id])
 }
 
+// ── AUDIT LOG ────────────────────────────────────────────────────────────────
+// Sin relaciones Prisma para no acoplar a los modelos principales.
+// tenantId/userId se guardan como strings planos (desnormalizados).
+model AuditLog {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  userId    String
+  userEmail String
+  action    String
+  entity    String
+  entityId  String
+  resource  String
+  method    String
+  before    Json?
+  after     Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
 // ── ENUMS ─────────
 enum Plan {
   Basic

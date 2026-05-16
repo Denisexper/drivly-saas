@@ -4,6 +4,7 @@ import {
   CreateVehicleInput,
   UpdateVehicleInput,
 } from "../../types/vehicle/vehicle.types";
+import { logAction } from "../../utils/audit";
 
 export class VehicleControllerService {
   private repository: VehicleRepositoryInterface;
@@ -112,6 +113,8 @@ export class VehicleControllerService {
     try {
       const response = await this.repository.create(data);
 
+      logAction({ req, action: "CREATE", entity: "Vehicle", entityId: response.id, after: { ...response, dailyRate: Number(response.dailyRate) } });
+
       return res.status(201).json({
         msj: "Vehicle created successfully",
         data: {
@@ -153,6 +156,7 @@ export class VehicleControllerService {
     const data: UpdateVehicleInput = req.body;
 
     try {
+      const before = await this.repository.getById(id);
       const response = await this.repository.update(id, data);
 
       if (!response) {
@@ -160,6 +164,15 @@ export class VehicleControllerService {
           msj: "vehicle not found",
         });
       }
+
+      logAction({
+        req,
+        action: "UPDATE",
+        entity: "Vehicle",
+        entityId: id,
+        before: before ? { ...before, dailyRate: Number(before.dailyRate) } : null,
+        after:  { ...response, dailyRate: Number(response.dailyRate) },
+      });
 
       return res.status(200).json({
         msj: "vehicle updated successfully",
@@ -205,6 +218,8 @@ export class VehicleControllerService {
           msj: "Vehicle not found"
         })
       }
+
+      logAction({ req, action: "DELETE", entity: "Vehicle", entityId: id, before: { ...response, dailyRate: Number(response.dailyRate) } });
 
       return res.status(200).json({
         msj: "Vehicle deleted successfully",

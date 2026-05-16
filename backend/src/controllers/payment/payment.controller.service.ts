@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { CreatePaymentInput } from "../../types/payment/payment.types";
 import { generatePaymentReceiptPDF } from "../../utils/pdf";
 import { sendPaymentReceiptEmail } from "../../email/email.service";
+import { logAction } from "../../utils/audit";
 
 export class PaymentControllerService {
   constructor(private readonly repository: PaymentRepositoryInterface) {}
@@ -45,6 +46,7 @@ export class PaymentControllerService {
       const response = await this.repository.create(data);
 
       sendPaymentReceiptEmail(response.id).catch((err) => console.error("[Email] sendPaymentReceiptEmail failed:", err));
+      logAction({ req, action: "CREATE", entity: "Payment", entityId: response.id, after: { ...response, amount: response.amount.toString() } });
 
       return res.status(201).json({
         msj: "Payment created successfully",
@@ -73,6 +75,7 @@ export class PaymentControllerService {
       const isExist = await this.repository.getById(id);
       if (!isExist) return res.status(404).json({ msj: "Payment not found" });
       const response = await this.repository.delete(id);
+      logAction({ req, action: "DELETE", entity: "Payment", entityId: id, before: { ...isExist, amount: isExist.amount.toString() } });
       return res.status(200).json({
         msj: "Payment deleted successfully",
         data: {

@@ -4,6 +4,7 @@ import {
   CreateClientInput,
   UpdateClientInput,
 } from "../../types/client/client.types";
+import { logAction } from "../../utils/audit";
 
 export class ClienteControllerService {
   private repository: ClientRepository;
@@ -66,6 +67,8 @@ export class ClienteControllerService {
     try {
       const response = await this.repository.create(data);
 
+      logAction({ req, action: "CREATE", entity: "Client", entityId: response.id, after: response });
+
       return res.status(201).json({
         msj: "Client Created sucessfully",
         client: {
@@ -91,7 +94,10 @@ export class ClienteControllerService {
     const data: UpdateClientInput = req.body;
 
     try {
+      const before = await this.repository.getById(id);
       const response = await this.repository.update(id, data);
+
+      logAction({ req, action: "UPDATE", entity: "Client", entityId: id, before, after: response });
 
       return res.status(200).json({
         msj: "Client updated successfully",
@@ -114,6 +120,8 @@ export class ClienteControllerService {
 
     try {
       const response = await this.repository.delete(id);
+
+      logAction({ req, action: "DELETE", entity: "Client", entityId: id, before: response });
 
       return res.status(200).json({
         msj: "Client deleted successfully",

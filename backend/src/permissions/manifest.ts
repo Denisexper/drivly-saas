@@ -27,6 +27,8 @@ export const PERMISSIONS = {
   ROLES_MANAGE: { key: "roles:manage", module: "Roles", action: "Gestionar", description: "Crear y gestionar roles y permisos" },
   // Reportes
   REPORTS_READ: { key: "reports:read", module: "Reportes", action: "Ver", description: "Ver reportes de cierre de caja y cuentas por cobrar" },
+  // Auditoría
+  AUDIT_READ: { key: "audit:read", module: "Auditoría", action: "Ver", description: "Ver logs de auditoría del sistema" },
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS]["key"];
@@ -46,5 +48,6 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, PermissionKey[]> = {
     "rentals:read",
     "payments:read",
     "reports:read",
+    "audit:read",
   ],
 };

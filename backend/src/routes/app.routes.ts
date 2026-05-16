@@ -58,6 +58,11 @@ import { ReportRoutes } from "./report/report.routes";
 import { SettingsControllerService } from "../controllers/settings/settings.controller.service";
 import { SettingsRoutes } from "./settings/settings.routes";
 
+//importaciones modulo audit
+import { AuditRepository } from "../repositories/audit/audit.repository";
+import { AuditControllerService } from "../controllers/audit/audit.controller.service";
+import { AuditRoutes } from "./audit/audit.routes";
+
 export class AppRoutes {
   static get routes(): Router {
     const router = Router();
@@ -118,6 +123,11 @@ export class AppRoutes {
     const settingsCtrl = new SettingsControllerService(tenantRepo)
     const settingsRoutes = new SettingsRoutes(Router(), settingsCtrl)
 
+    // --- configuracion Modulo Audit ---
+    const auditRepo = new AuditRepository(prisma)
+    const auditCtrl = new AuditControllerService(auditRepo)
+    const auditRoutes = new AuditRoutes(Router(), auditCtrl)
+
     // --- Definición de Prefijos de Ruta ---
     router.use("/auth", authRoutes.initRoutes());
     router.use("/clients", clientRoutes.initRoutes());
@@ -130,6 +140,7 @@ export class AppRoutes {
     router.use("/vehicles", vehicleRoutes.initRoutes());
     router.use("/reports", reportRoutes.initRoutes());
     router.use("/settings", settingsRoutes.initRoutes());
+    router.use("/audit",    auditRoutes.initRoutes());
 
     return router;
   }

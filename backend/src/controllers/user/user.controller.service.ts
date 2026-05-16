@@ -3,6 +3,7 @@ import { UserWithCustomRole } from "../../interfaces/user/user.repository.interf
 import { Request, Response } from "express";
 import { CreateUserInput, UpdateUserInput } from "../../types/user/user.types";
 import bcrypt from "bcrypt";
+import { logAction } from "../../utils/audit";
 
 export class UserControllerService {
   private repository: UserRepositoryInterface;
@@ -95,6 +96,8 @@ export class UserControllerService {
 
       const response = await this.repository.create(userData);
 
+      logAction({ req, action: "CREATE", entity: "User", entityId: response.id, after: { id: response.id, name: response.name, email: response.email, role: response.role, active: response.active } });
+
       return res.status(201).json({
         msj: "User created successfully",
         data: {
@@ -148,6 +151,15 @@ export class UserControllerService {
       // Ejecutar actualización
       const response = await this.repository.update(id, updateData);
 
+      logAction({
+        req,
+        action: "UPDATE",
+        entity: "User",
+        entityId: id,
+        before: { id: userExist.id, name: userExist.name, email: userExist.email, role: userExist.role, active: userExist.active },
+        after:  { id: response.id,  name: response.name,  email: response.email,  role: response.role,  active: response.active },
+      });
+
       return res.status(200).json({
         msj: "User updated successfully",
         data: {
@@ -187,6 +199,8 @@ export class UserControllerService {
           msj: "User not found",
         })
       }
+
+      logAction({ req, action: "DELETE", entity: "User", entityId: id, before: { id: response.id, name: response.name, email: response.email, role: response.role } });
 
       return res.status(200).json({
         msj: "User deleted successfully",
