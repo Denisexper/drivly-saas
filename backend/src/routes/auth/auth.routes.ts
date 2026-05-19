@@ -33,6 +33,7 @@ export class AuthRoutes {
         this.router.post("/register-company", validate(companyRegisterSchema), (req: Request<{}, {}, CompanyRegisterInput>, res: Response, next: NextFunction) => this.controller.registerCompany(req, res, next));
         this.router.post("/forgot-password", validate(forgotPasswordSchema), (req, res, next) => this.controller.forgotPassword(req, res, next));
         this.router.post("/reset-password", validate(resetPasswordSchema), (req, res, next) => this.controller.resetPassword(req, res, next));
+        this.router.post("/logout", authMiddleware, (req, res, next) => this.controller.logout(req, res, next));
         this.router.post("/impersonate/:tenantId", authMiddleware, authorizeRoles("SuperAdmin"), (req: Request<{ tenantId: string }>, res: Response, next: NextFunction) => this.controller.impersonate(req, res, next));
 
         return this.router;

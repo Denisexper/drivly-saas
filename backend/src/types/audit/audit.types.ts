@@ -5,7 +5,8 @@ export type AuditAction =
   | "RETURN"
   | "CANCEL"
   | "UPLOAD_PHOTOS"
-  | "LOGIN";
+  | "LOGIN"
+  | "LOGOUT";
 
 export type AuditEntity =
   | "Vehicle"

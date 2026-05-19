@@ -17,6 +17,13 @@ export const useAuthStore = create(
       },
 
       logout: () => {
+        const { token } = get();
+        if (token) {
+          fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          }).catch(() => {});
+        }
         localStorage.removeItem("token");
         usePermissionsStore.getState().reset();
         set({ token: null, user: null, savedSASession: null });

@@ -183,6 +183,22 @@ export class AuthControllerService {
         }
     }
 
+    async logout(req: Request, res: Response, next: NextFunction) {
+        try {
+            logAction({
+                req,
+                action: "LOGOUT",
+                entity: "Auth",
+                entityId: req.user!.id,
+                after: { role: req.user!.role },
+            });
+
+            return res.status(200).json({ msj: "Sesión cerrada" });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async login(req: Request<{}, {}, LoginInput>, res: Response, next: NextFunction) {
         const { email, password, slug } = req.body;
 
