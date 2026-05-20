@@ -32,9 +32,11 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const logout = useAuthStore((s) => s.logout);
+  const { logout, user, savedSASession } = useAuthStore();
   const navigate = useNavigate();
   const { can, role } = usePermissions();
+
+  const isImpersonating = user?.role === "SuperAdmin" && !!savedSASession;
 
   const handleLogout = () => {
     const slug = localStorage.getItem("lastSlug");
@@ -43,7 +45,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="fixed top-0 left-0 h-full w-64 bg-sidebar border-r border-sidebar-border flex flex-col z-20">
+    <aside className={`fixed left-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col z-20 ${isImpersonating ? "top-10" : "top-0"}`}>
       <div className="px-6 py-5 border-b border-sidebar-border">
         <span className="text-sidebar-primary font-bold text-xl tracking-tight">
           Drivly
