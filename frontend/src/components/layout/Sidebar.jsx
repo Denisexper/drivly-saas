@@ -50,6 +50,11 @@ export default function Sidebar() {
         <span className="text-sidebar-primary font-bold text-xl tracking-tight">
           Drivly
         </span>
+        {isImpersonating && user?.tenantName && (
+          <p className="mt-0.5 text-xs font-medium text-purple-400 truncate">
+            {user.tenantName}
+          </p>
+        )}
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">

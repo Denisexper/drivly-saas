@@ -31,7 +31,7 @@ export default function MainLayout() {
             <ShieldCheck className="h-4 w-4 shrink-0" />
             <span>
               Modo vista SuperAdmin — estás dentro del panel de{" "}
-              <span className="font-semibold">{savedSASession?.user?.tenantName ?? "esta empresa"}</span>
+              <span className="font-semibold">{user?.tenantName ?? "esta empresa"}</span>
             </span>
           </div>
           <button
