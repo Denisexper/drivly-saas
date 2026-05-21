@@ -69,10 +69,15 @@ function SuperAdminHeader() {
 export default function SuperAdminLayout() {
   const init = useThemeStore((s) => s.init);
   const role = useAuthStore((s) => s.user?.role);
+  const setSelectedTenantId = useSuperAdminStore((s) => s.setSelectedTenantId);
 
   useEffect(() => {
     init();
   }, [init]);
+
+  useEffect(() => {
+    setSelectedTenantId(null);
+  }, [setSelectedTenantId]);
 
   if (role !== "SuperAdmin") return <Navigate to="/dashboard" replace />;
 
