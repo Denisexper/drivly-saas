@@ -10,6 +10,7 @@ const ACTION_LABELS = {
   CANCEL:        { label: "Cancelación", color: "bg-orange-900/40 text-orange-400" },
   UPLOAD_PHOTOS: { label: "Fotos",       color: "bg-yellow-900/40 text-yellow-400" },
   LOGIN:         { label: "Login",       color: "bg-cyan-900/40 text-cyan-400" },
+  LOGOUT:         { label: "Logout",       color: "bg-orange-900/40 text-white-400" },
 };
 
 const ENTITY_LABELS = {
@@ -41,7 +42,7 @@ const FIELD_LABELS = {
 };
 
 const ENTITIES = ["Vehicle", "Client", "Rental", "Payment", "User", "Auth"];
-const ACTIONS  = ["CREATE", "UPDATE", "DELETE", "RETURN", "CANCEL", "LOGIN"];
+const ACTIONS  = ["CREATE", "UPDATE", "DELETE", "RETURN", "CANCEL", "LOGIN", "LOGOUT"];
 const LIMIT    = 20;
 
 function formatValue(val) {
