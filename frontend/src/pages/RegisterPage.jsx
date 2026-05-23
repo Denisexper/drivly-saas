@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Building2, User, Mail, Lock, ArrowRight } from "lucide-react";
+import { Building2, User, Mail, Lock, ArrowRight, MailCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { authService } from "@/services/auth.service";
@@ -26,6 +26,7 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [registered, setRegistered] = useState(false);
 
   const slug = slugify(form.companyName);
 
@@ -40,9 +41,7 @@ export default function RegisterPage() {
     setError(null);
     try {
       await authService.registerCompany(form);
-      navigate(`/login/${slug}`, {
-        state: { registered: true, email: form.ownerEmail },
-      });
+      setRegistered(true);
     } catch (err) {
       setError(err.response?.data?.message ?? "Ocurrió un error. Intenta de nuevo.");
     } finally {
@@ -95,6 +94,30 @@ export default function RegisterPage() {
             <img src="/saas_rounded_icon.png" alt="Drivly" className="w-16 h-16" />
           </div>
 
+          {registered ? (
+            <div className="space-y-6 text-center">
+              <MailCheck className="w-16 h-16 text-blue-600 mx-auto" />
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">Revisa tu email</h2>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Enviamos un enlace de activación a{" "}
+                  <strong className="text-foreground">{form.ownerEmail}</strong>.
+                  <br />
+                  Haz click en el enlace para activar tu cuenta.
+                </p>
+              </div>
+              <div className="rounded-lg border bg-muted/40 px-4 py-3 text-left space-y-1">
+                <p className="text-xs text-muted-foreground">¿No lo ves? Revisa tu carpeta de spam.</p>
+                <p className="text-xs text-muted-foreground">El enlace expira en 24 horas.</p>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                <Link to="/login" className="text-blue-500 hover:underline font-medium">
+                  Volver al inicio de sesión
+                </Link>
+              </p>
+            </div>
+          ) : (
+          <>
           <div className="space-y-1">
             <h2 className="text-3xl font-bold text-foreground">Crea tu empresa</h2>
             <p className="text-muted-foreground text-sm">14 días gratis, sin tarjeta de crédito</p>
@@ -209,6 +232,8 @@ export default function RegisterPage() {
               Inicia sesión
             </Link>
           </p>
+          </>
+          )}
         </div>
       </div>
     </div>

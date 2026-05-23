@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
 import { tenantService } from "@/services/tenant.service";
 import api from "@/services/api";
-import { Mail, Lock, ShieldCheck, Building2 } from "lucide-react";
+import { authService } from "@/services/auth.service";
+import { Mail, Lock, ShieldCheck, Building2, MailWarning } from "lucide-react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -22,6 +23,9 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendDone, setResendDone] = useState(false);
 
   useEffect(() => {
     if (isSuperAdmin) return;
@@ -35,7 +39,19 @@ export default function LoginPage() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError(null);
+    setEmailNotVerified(false);
+    setResendDone(false);
   };
+
+  async function handleResend() {
+    setResendLoading(true);
+    try {
+      await authService.resendVerification(form.email);
+      setResendDone(true);
+    } finally {
+      setResendLoading(false);
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,7 +63,12 @@ export default function LoginPage() {
       login(data.token, data.data, data.data.slug ?? slug);
       navigate(data.data?.role === "SuperAdmin" ? "/superadmin" : "/dashboard");
     } catch (err) {
-      setError(err.response?.data?.msj || "Credenciales incorrectas");
+      const msg = err.response?.data?.msj ?? "";
+      if (msg === "EMAIL_NOT_VERIFIED") {
+        setEmailNotVerified(true);
+      } else {
+        setError(msg || "Credenciales incorrectas");
+      }
     } finally {
       setLoading(false);
     }
@@ -189,6 +210,31 @@ export default function LoginPage() {
             {error && (
               <div className="bg-destructive/10 border border-destructive/30 rounded-lg px-4 py-3">
                 <p className="text-sm text-destructive font-medium">{error}</p>
+              </div>
+            )}
+
+            {emailNotVerified && (
+              <div className="border border-amber-300/50 bg-amber-50 dark:bg-amber-950/20 rounded-lg px-4 py-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <MailWarning className="w-4 h-4 text-amber-600 shrink-0" />
+                  <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">
+                    Debes verificar tu email antes de iniciar sesión.
+                  </p>
+                </div>
+                {!resendDone ? (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendLoading}
+                    className="text-sm text-blue-600 hover:underline disabled:opacity-50"
+                  >
+                    {resendLoading ? "Enviando..." : "Reenviar email de verificación"}
+                  </button>
+                ) : (
+                  <p className="text-sm text-green-700 dark:text-green-400">
+                    ¡Listo! Revisa tu bandeja de entrada.
+                  </p>
+                )}
               </div>
             )}
 

@@ -89,4 +89,31 @@ export class AuthRepository {
       },
     });
   }
+
+  async setEmailVerifyToken(userId: string, token: string, expiresAt: Date): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { emailVerifyToken: token, emailVerifyExpiresAt: expiresAt },
+    });
+  }
+
+  async findByEmailVerifyToken(token: string): Promise<User | null> {
+    return this.prisma.user.findFirst({
+      where: {
+        emailVerifyToken: token,
+        emailVerifyExpiresAt: { gt: new Date() },
+      },
+    });
+  }
+
+  async markEmailVerified(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        emailVerified: true,
+        emailVerifyToken: null,
+        emailVerifyExpiresAt: null,
+      },
+    });
+  }
 }

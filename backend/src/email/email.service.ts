@@ -5,10 +5,22 @@ import { buildRentalConfirmEmail } from "./templates/rental-confirm.template";
 import { buildRentalReturnEmail } from "./templates/rental-return.template";
 import { buildPaymentReceiptEmail } from "./templates/payment-receipt.template";
 import { buildPasswordResetEmail } from "./templates/password-reset.template";
+import { buildVerifyEmail } from "./templates/verify-email.template";
 
 export async function sendWelcomeEmail(data: WelcomeEmailData): Promise<void> {
   const { subject, html } = buildWelcomeEmail(data);
   await resend.emails.send({ from: EMAIL_FROM, to: data.adminEmail, subject, html });
+}
+
+export async function sendEmailVerificationEmail(data: {
+  userName: string;
+  userEmail: string;
+  verifyToken: string;
+  tenantName: string;
+  tenantSlug: string;
+}): Promise<void> {
+  const { subject, html } = buildVerifyEmail(data);
+  await resend.emails.send({ from: EMAIL_FROM, to: data.userEmail, subject, html });
 }
 
 export async function sendPasswordResetEmail(data: {

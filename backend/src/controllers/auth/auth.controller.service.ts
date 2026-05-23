@@ -6,7 +6,7 @@ import { generateToken } from "../../utils/generateToken";
 import { AuthRepository } from "../../repositories/auth/auth.repository";
 import { TenantRepositoryInterface } from "../../interfaces/tenant/tenant.repository.interface";
 import { slugify } from "../../utils/slugify";
-import { sendWelcomeEmail, sendPasswordResetEmail } from "../../email/email.service";
+import { sendEmailVerificationEmail, sendPasswordResetEmail } from "../../email/email.service";
 import { seedTenantDefaultPermissions } from "../../permissions/sync";
 import { logAction } from "../../utils/audit";
 
@@ -115,12 +115,18 @@ export class AuthControllerService {
 
             await seedTenantDefaultPermissions(tenant.id);
 
-            sendWelcomeEmail({
-                adminName: ownerName,
-                adminEmail: ownerEmail,
+            const verifyToken = randomUUID();
+            const verifyExpiresAt = new Date();
+            verifyExpiresAt.setHours(verifyExpiresAt.getHours() + 24);
+            await this.authRepo.setEmailVerifyToken(user.id, verifyToken, verifyExpiresAt);
+
+            sendEmailVerificationEmail({
+                userName: ownerName,
+                userEmail: ownerEmail,
+                verifyToken,
                 tenantName: tenant.name,
                 tenantSlug: tenant.slug,
-            }).catch((err) => console.error("[Email] sendWelcomeEmail failed:", err));
+            }).catch((err) => console.error("[Email] sendEmailVerificationEmail failed:", err));
 
             return res.status(201).json({
                 msj: "Empresa creada exitosamente",
@@ -199,6 +205,53 @@ export class AuthControllerService {
         }
     }
 
+    async verifyEmail(req: Request, res: Response, next: NextFunction) {
+        const { token } = req.body;
+
+        try {
+            const user = await this.authRepo.findByEmailVerifyToken(token);
+
+            if (!user) return next({ status: 400, message: "TOKEN_INVALID_OR_EXPIRED" });
+
+            await this.authRepo.markEmailVerified(user.id);
+
+            return res.status(200).json({ msj: "Email verificado exitosamente" });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async resendVerification(req: Request, res: Response, next: NextFunction) {
+        const { email } = req.body;
+
+        try {
+            const user = await this.authRepo.findByEmail(email);
+
+            if (!user || user.emailVerified) {
+                return res.status(200).json({ msj: "Si ese email existe y no está verificado, recibirás un correo en breve." });
+            }
+
+            const tenant = await this.tenantRepo.getById(user.tenantId);
+
+            const verifyToken = randomUUID();
+            const verifyExpiresAt = new Date();
+            verifyExpiresAt.setHours(verifyExpiresAt.getHours() + 24);
+            await this.authRepo.setEmailVerifyToken(user.id, verifyToken, verifyExpiresAt);
+
+            sendEmailVerificationEmail({
+                userName: user.name,
+                userEmail: user.email,
+                verifyToken,
+                tenantName: tenant?.name ?? "",
+                tenantSlug: tenant?.slug ?? "",
+            }).catch((err) => console.error("[Email] resendVerification failed:", err));
+
+            return res.status(200).json({ msj: "Si ese email existe y no está verificado, recibirás un correo en breve." });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async login(req: Request<{}, {}, LoginInput>, res: Response, next: NextFunction) {
         const { email, password, slug } = req.body;
 
@@ -213,6 +266,10 @@ export class AuthControllerService {
 
             if (!isPasswordValid) {
                 return next({ status: 401, message: "Credenciales incorrectas" });
+            }
+
+            if (!userExist.emailVerified) {
+                return next({ status: 403, message: "EMAIL_NOT_VERIFIED" });
             }
 
             if (slug) {

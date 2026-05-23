@@ -43,6 +43,9 @@ model User {
   customRole             CustomRole? @relation(fields: [customRoleId], references: [id])
   passwordResetToken     String?
   passwordResetExpiresAt DateTime?
+  emailVerified          Boolean   @default(false)
+  emailVerifyToken       String?
+  emailVerifyExpiresAt   DateTime?
 
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   rentals   Rental[]

@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 import { AuthControllerService } from "../../controllers/auth/auth.controller.service";
 import { LoginInput, RegisterInput, CompanyRegisterInput } from "../../types/auth/auth.type";
 import { validate } from "../../middlewares/validate.middleware";
-import { loginSchema, registerSchema, companyRegisterSchema, forgotPasswordSchema, resetPasswordSchema } from "../../schemas/auth.schema";
+import { loginSchema, registerSchema, companyRegisterSchema, forgotPasswordSchema, resetPasswordSchema, verifyEmailSchema, resendVerificationSchema } from "../../schemas/auth.schema";
 import { authMiddleware } from "../../middlewares/auth.moddleware";
 import { authorizeRoles } from "../../middlewares/role.moddleware";
 
@@ -33,6 +33,8 @@ export class AuthRoutes {
         this.router.post("/register-company", validate(companyRegisterSchema), (req: Request<{}, {}, CompanyRegisterInput>, res: Response, next: NextFunction) => this.controller.registerCompany(req, res, next));
         this.router.post("/forgot-password", validate(forgotPasswordSchema), (req, res, next) => this.controller.forgotPassword(req, res, next));
         this.router.post("/reset-password", validate(resetPasswordSchema), (req, res, next) => this.controller.resetPassword(req, res, next));
+        this.router.post("/verify-email", validate(verifyEmailSchema), (req, res, next) => this.controller.verifyEmail(req, res, next));
+        this.router.post("/resend-verification", validate(resendVerificationSchema), (req, res, next) => this.controller.resendVerification(req, res, next));
         this.router.post("/logout", authMiddleware, (req, res, next) => this.controller.logout(req, res, next));
         this.router.post("/impersonate/:tenantId", authMiddleware, authorizeRoles("SuperAdmin"), (req: Request<{ tenantId: string }>, res: Response, next: NextFunction) => this.controller.impersonate(req, res, next));
 
