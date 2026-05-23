@@ -109,11 +109,7 @@ export class AuthRepository {
   async markEmailVerified(userId: string): Promise<void> {
     await this.prisma.user.update({
       where: { id: userId },
-      data: {
-        emailVerified: true,
-        emailVerifyToken: null,
-        emailVerifyExpiresAt: null,
-      },
+      data: { emailVerified: true },
     });
   }
 }
