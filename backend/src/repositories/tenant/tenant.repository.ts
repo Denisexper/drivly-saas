@@ -113,17 +113,29 @@ export class TenantRepository implements TenantRepositoryInterface {
         }
     }
     async delete(id: string): Promise<Tenant> {
-        try {
-            
-            const response = await this.prisma.tenant.delete({
-                where: { id }
-            });
+        return this.prisma.$transaction(async (tx) => {
+            // Desconectar usuarios de custom roles antes de borrarlos
+            await tx.user.updateMany({ where: { tenantId: id }, data: { customRoleId: null } });
 
-            return response
-        } catch (error) {
-            
-            throw new Error (`${error}`);
-        }
+            // Fotos → Pagos → Alquileres
+            await tx.rentalPhoto.deleteMany({ where: { rental: { tenantId: id } } });
+            await tx.payment.deleteMany({ where: { rental: { tenantId: id } } });
+            await tx.rental.deleteMany({ where: { tenantId: id } });
+
+            // Vehículos y clientes
+            await tx.vehicle.deleteMany({ where: { tenantId: id } });
+            await tx.client.deleteMany({ where: { tenantId: id } });
+
+            // Permisos de roles personalizados → custom roles → role permissions base
+            await tx.customRolePermission.deleteMany({ where: { customRole: { tenantId: id } } });
+            await tx.customRole.deleteMany({ where: { tenantId: id } });
+            await tx.rolePermission.deleteMany({ where: { tenantId: id } });
+
+            // Usuarios
+            await tx.user.deleteMany({ where: { tenantId: id } });
+
+            return tx.tenant.delete({ where: { id } });
+        });
     }
 
 }
