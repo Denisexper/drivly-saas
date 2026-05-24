@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Settings,
   ClipboardList,
+  TrendingUp,
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -25,6 +26,7 @@ const navItems = [
   { to: "/payments",       label: "Pagos",               icon: CreditCard,      permission: "payments:read" },
   { to: "/users",          label: "Usuarios",            icon: UserCog,         permission: "users:read" },
   { to: "/roles",          label: "Roles y Permisos",    icon: KeyRound,        permission: "roles:manage" },
+  { to: "/reportes",       label: "Reportes",            icon: TrendingUp,      permission: "reports:read" },
   { to: "/cierre-caja",    label: "Cierre de Caja",      icon: BarChart2,       permission: "reports:read" },
   { to: "/cuentas-cobrar", label: "Cuentas por Cobrar",  icon: AlertCircle,     permission: "reports:read" },
   { to: "/audit",          label: "Logs de Auditoría",   icon: ClipboardList,   permission: "audit:read" },

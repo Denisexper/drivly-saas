@@ -17,6 +17,7 @@ import UsersPage from "@/pages/UsersPage";
 import RolesPage from "@/pages/RolesPage";
 import DailySummaryPage from "@/pages/DailySummaryPage";
 import ReceivablesPage from "@/pages/ReceivablesPage";
+import ReportsPage from "@/pages/ReportsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import AuditPage from "@/pages/AuditPage";
 import SuperAdminDashboard from "@/pages/superadmin/SuperAdminDashboard";
@@ -71,6 +72,7 @@ function App() {
           <Route path="/roles"          element={<RolesPage />} />
           <Route path="/cierre-caja"    element={<DailySummaryPage />} />
           <Route path="/cuentas-cobrar" element={<ReceivablesPage />} />
+          <Route path="/reportes"       element={<ReportsPage />} />
           <Route path="/settings"       element={<SettingsPage />} />
           <Route path="/audit"          element={<AuditPage />} />
           <Route index element={<Navigate to="/dashboard" replace />} />
