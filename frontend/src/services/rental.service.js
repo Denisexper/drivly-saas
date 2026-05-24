@@ -16,4 +16,15 @@ export const rentalService = {
   },
   getPhotos: (id, type) =>
     api.get(`/rentals/${id}/photos`, { params: type ? { type } : {} }),
+  downloadPdfContract: async (rentalId) => {
+    const res = await api.get(`/rentals/${rentalId}/pdf-contract`, {
+      responseType: "blob",
+    });
+    const url = URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `contrato-${rentalId.slice(-8)}.pdf`;
+    link.click();
+    URL.revokeObjectURL(url);
+  },
 };

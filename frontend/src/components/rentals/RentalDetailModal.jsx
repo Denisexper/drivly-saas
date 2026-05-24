@@ -81,6 +81,14 @@ async function handleDownloadReceipt(paymentId) {
   }
 }
 
+async function handleDownloadContract(rentalId) {
+  try {
+    await rentalService.downloadPdfContract(rentalId);
+  } catch {
+    // silencioso
+  }
+}
+
 function FinancialSummary({ summary, loading }) {
   if (loading) return <SummarySkeleton />;
   if (!summary) return null;
@@ -250,7 +258,17 @@ export function RentalDetailModal({ rental, open, onOpenChange }) {
     <DialogRoot open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Detalle del Alquiler</DialogTitle>
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle>Detalle del Alquiler</DialogTitle>
+            <button
+              onClick={() => handleDownloadContract(rental.id)}
+              title="Descargar contrato PDF"
+              className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Contrato PDF
+            </button>
+          </div>
           <DialogDescription>
             <span className="font-mono font-medium text-foreground">{rental.vehicle?.plate}</span>
             {" "}— {rental.client?.firstName} {rental.client?.lastName}
