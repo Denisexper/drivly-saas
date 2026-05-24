@@ -9,7 +9,8 @@ import { buildVerifyEmail } from "./templates/verify-email.template";
 
 export async function sendWelcomeEmail(data: WelcomeEmailData): Promise<void> {
   const { subject, html } = buildWelcomeEmail(data);
-  await resend.emails.send({ from: EMAIL_FROM, to: data.adminEmail, subject, html });
+  const { error } = await resend.emails.send({ from: EMAIL_FROM, to: data.adminEmail, subject, html });
+  if (error) throw error;
 }
 
 export async function sendEmailVerificationEmail(data: {
@@ -20,7 +21,8 @@ export async function sendEmailVerificationEmail(data: {
   tenantSlug: string;
 }): Promise<void> {
   const { subject, html } = buildVerifyEmail(data);
-  await resend.emails.send({ from: EMAIL_FROM, to: data.userEmail, subject, html });
+  const { error } = await resend.emails.send({ from: EMAIL_FROM, to: data.userEmail, subject, html });
+  if (error) throw error;
 }
 
 export async function sendPasswordResetEmail(data: {
@@ -29,7 +31,8 @@ export async function sendPasswordResetEmail(data: {
   resetToken: string;
 }): Promise<void> {
   const { subject, html } = buildPasswordResetEmail(data);
-  await resend.emails.send({ from: EMAIL_FROM, to: data.userEmail, subject, html });
+  const { error } = await resend.emails.send({ from: EMAIL_FROM, to: data.userEmail, subject, html });
+  if (error) throw error;
 }
 
 export async function sendRentalConfirmEmail(rentalId: string): Promise<void> {
@@ -42,7 +45,8 @@ export async function sendRentalConfirmEmail(rentalId: string): Promise<void> {
 
   const { subject, html } = buildRentalConfirmEmail(rental);
 
-  await resend.emails.send({ from: EMAIL_FROM, to: rental.client.email, subject, html });
+  const { error } = await resend.emails.send({ from: EMAIL_FROM, to: rental.client.email, subject, html });
+  if (error) throw error;
 }
 
 export async function sendRentalReturnEmail(rentalId: string): Promise<void> {
@@ -55,7 +59,8 @@ export async function sendRentalReturnEmail(rentalId: string): Promise<void> {
 
   const { subject, html } = buildRentalReturnEmail(rental);
 
-  await resend.emails.send({ from: EMAIL_FROM, to: rental.client.email, subject, html });
+  const { error } = await resend.emails.send({ from: EMAIL_FROM, to: rental.client.email, subject, html });
+  if (error) throw error;
 }
 
 export async function sendPaymentReceiptEmail(paymentId: string): Promise<void> {
@@ -68,5 +73,6 @@ export async function sendPaymentReceiptEmail(paymentId: string): Promise<void> 
 
   const { subject, html } = buildPaymentReceiptEmail(payment);
 
-  await resend.emails.send({ from: EMAIL_FROM, to: payment.rental.client.email, subject, html });
+  const { error } = await resend.emails.send({ from: EMAIL_FROM, to: payment.rental.client.email, subject, html });
+  if (error) throw error;
 }
