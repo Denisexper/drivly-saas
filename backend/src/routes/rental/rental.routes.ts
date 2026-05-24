@@ -90,6 +90,15 @@ export class RentalRoutes {
       (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.photoController.list(req, res, next)
     );
 
+    // PDF contrato
+    this.router.get(
+      "/:id/pdf-contract",
+      authMiddleware,
+      tenantMiddleware,
+      checkPermission("rentals:read"),
+      (req: Request<{ id: string }>, res: Response) => this.controller.getPdfContract(req, res)
+    );
+
     // Payment summary
     this.router.get(
       "/:id/payment-summary",

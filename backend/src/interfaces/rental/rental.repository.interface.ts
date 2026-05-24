@@ -3,10 +3,12 @@ import type {
   CreateRentalInput,
   UpdateRentalInput,
   ReturnRentalInput,
+  RentalWithDetails,
 } from "../../types/rental/rental.types";
 
 export interface RentalRepositoryInterface {
   getById(id: string): Promise<Rental | null>;
+  getByIdWithDetails(id: string): Promise<RentalWithDetails | null>;
   getAll(tenantId?: string, status?: string): Promise<Rental[]>;
   create(data: CreateRentalInput): Promise<Rental>;
   update(id: string, data: UpdateRentalInput): Promise<Rental>;

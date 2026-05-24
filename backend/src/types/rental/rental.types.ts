@@ -1,5 +1,47 @@
 import { FuelLevel, Rental } from "@prisma/client";
 
+export interface RentalWithDetails {
+  id: string
+  startDate: Date
+  endDate: Date
+  dailyRate: string
+  totalDays: number
+  subtotal: string
+  discount: string
+  extraCharges: string
+  totalAmount: string
+  deposit: string
+  mileageStart: number
+  fuelOut: string
+  notes: string | null
+  createdAt: Date
+  status: string
+  tenant: { name: string; slug: string }
+  client: {
+    firstName: string
+    lastName: string
+    email: string | null
+    phone: string
+    idType: string
+    idNumber: string
+    address: string | null
+    licenseNum: string | null
+    licenseExp: Date | null
+  }
+  vehicle: {
+    brand: string
+    model: string
+    year: number
+    plate: string
+    color: string
+    category: string
+    transmission: string
+    seats: number
+    fuelType: string
+  }
+  user: { name: string }
+}
+
 // Sobreescribe los campos Decimal a number para facilitar el manejo en controllers
 export type CreateRentalInput = Omit<
   Rental,

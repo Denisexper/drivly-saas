@@ -3,6 +3,7 @@ import { RentalRepositoryInterface } from "../../interfaces/rental/rental.reposi
 import { CreateRentalBody, ReturnRentalInput, UpdateRentalInput } from "../../types/rental/rental.types";
 import { sendRentalConfirmEmail, sendRentalReturnEmail } from "../../email/email.service";
 import { logAction } from "../../utils/audit";
+import { generateRentalContractPDF } from "../../utils/pdf";
 import { Rental } from "@prisma/client";
 
 // Solo los campos escalares del alquiler, sin relaciones ni datos sensibles
@@ -182,6 +183,17 @@ export class RentalControllerService {
     } catch (error: any) {
       if (error.status) return res.status(error.status).json({ msj: error.message });
       if (error.code === "P2025") return res.status(404).json({ msj: "Rental not found" });
+      return res.status(500).json({ msj: "Server error", error: error.message });
+    }
+  }
+
+  async getPdfContract(req: Request<{ id: string }>, res: Response) {
+    const { id } = req.params;
+    try {
+      const rental = await this.repository.getByIdWithDetails(id);
+      if (!rental) return res.status(404).json({ msj: "Rental not found" });
+      generateRentalContractPDF(rental, res);
+    } catch (error: any) {
       return res.status(500).json({ msj: "Server error", error: error.message });
     }
   }

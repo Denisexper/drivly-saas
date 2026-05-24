@@ -4,6 +4,7 @@ import {
   CreateRentalInput,
   UpdateRentalInput,
   ReturnRentalInput,
+  RentalWithDetails,
 } from "../../types/rental/rental.types";
 
 export class RentalRepository implements RentalRepositoryInterface {
@@ -18,6 +19,42 @@ export class RentalRepository implements RentalRepositoryInterface {
       where: { id },
       include: { vehicle: true, client: true, user: true, payments: true },
     });
+  }
+
+  async getByIdWithDetails(id: string): Promise<RentalWithDetails | null> {
+    const rental = await this.prisma.rental.findUnique({
+      where: { id },
+      include: {
+        tenant: { select: { name: true, slug: true } },
+        client: { select: { firstName: true, lastName: true, email: true, phone: true, idType: true, idNumber: true, address: true, licenseNum: true, licenseExp: true } },
+        vehicle: { select: { brand: true, model: true, year: true, plate: true, color: true, category: true, transmission: true, seats: true, fuelType: true } },
+        user: { select: { name: true } },
+      },
+    });
+
+    if (!rental) return null;
+
+    return {
+      id: rental.id,
+      startDate: rental.startDate,
+      endDate: rental.endDate,
+      dailyRate: rental.dailyRate.toString(),
+      totalDays: rental.totalDays,
+      subtotal: rental.subtotal.toString(),
+      discount: rental.discount.toString(),
+      extraCharges: rental.extraCharges.toString(),
+      totalAmount: rental.totalAmount.toString(),
+      deposit: rental.deposit.toString(),
+      mileageStart: rental.mileageStart,
+      fuelOut: rental.fuelOut,
+      notes: rental.notes,
+      createdAt: rental.createdAt,
+      status: rental.status,
+      tenant: rental.tenant,
+      client: rental.client,
+      vehicle: rental.vehicle,
+      user: rental.user,
+    };
   }
 
   async getAll(tenantId?: string, status?: string): Promise<Rental[]> {
