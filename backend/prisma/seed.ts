@@ -26,7 +26,7 @@ async function main() {
   const superAdminPassword = await bcrypt.hash("superadmin123", 10);
   const superAdmin = await prisma.user.upsert({
     where: { email: "superadmin@drivly.com" },
-    update: { tenantId: tenant.id, role: "SuperAdmin", active: true },
+    update: { tenantId: tenant.id, role: "SuperAdmin", active: true, emailVerified: true },
     create: {
       tenantId: tenant.id,
       name: "Super Admin",
@@ -34,6 +34,7 @@ async function main() {
       password: superAdminPassword,
       role: "SuperAdmin",
       active: true,
+      emailVerified: true,
     },
   });
   console.log(`✅ SuperAdmin: ${superAdmin.email}`);
@@ -42,7 +43,7 @@ async function main() {
   const adminPassword = await bcrypt.hash("admin123", 10);
   const admin = await prisma.user.upsert({
     where: { email: "admin@drivly.com" },
-    update: { email: "admin@drivly.com", tenantId: tenant.id, role: "Admin", active: true },
+    update: { email: "admin@drivly.com", tenantId: tenant.id, role: "Admin", active: true, emailVerified: true },
     create: {
       tenantId: tenant.id,
       name: "Admin Demo",
@@ -50,6 +51,7 @@ async function main() {
       password: adminPassword,
       role: "Admin",
       active: true,
+      emailVerified: true,
     },
   });
   console.log(`✅ Admin: ${admin.email}`);
@@ -58,7 +60,7 @@ async function main() {
   const operatorPassword = await bcrypt.hash("operator123", 10);
   const operator = await prisma.user.upsert({
     where: { email: "operador@drivly.com" },
-    update: { email: "operador@drivly.com", tenantId: tenant.id, role: "Operator", active: true },
+    update: { email: "operador@drivly.com", tenantId: tenant.id, role: "Operator", active: true, emailVerified: true },
     create: {
       tenantId: tenant.id,
       name: "Operador Demo",
@@ -66,6 +68,7 @@ async function main() {
       password: operatorPassword,
       role: "Operator",
       active: true,
+      emailVerified: true,
     },
   });
   console.log(`✅ Operador: ${operator.email}`);
