@@ -14,7 +14,7 @@ const globalLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { msj: "Demasiadas peticiones, intenta en un momento." },
+  message: { message: "Demasiadas peticiones, intenta en un momento." },
 });
 
 app.use(helmet());
@@ -29,13 +29,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(globalLimiter);
 
 app.get("/health", (req: Request, res: Response) => {
-  res.status(200).json({ msj: "rentCart API funcionando!" });
+  res.status(200).json({ message: "rentCart API funcionando!" });
 });
 
 app.use("/api/v1", AppRoutes.routes);
 
 app.use((req: Request, res: Response) => {
-  res.status(404).json({ ok: false, msj: `Route ${req.method} ${req.originalUrl} not found` });
+  res.status(404).json({ ok: false, message: `Route ${req.method} ${req.originalUrl} not found` });
 });
 
 app.use(ErrorMiddleware);

@@ -15,9 +15,9 @@ export class PermissionControllerService {
   async getAll(req: Request, res: Response) {
     try {
       const permissions = await this.repository.getAll();
-      return res.status(200).json({ msj: "Permissions retrieved successfully", data: permissions });
+      return res.status(200).json({ message: "Permissions retrieved successfully", data: permissions });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -30,7 +30,7 @@ export class PermissionControllerService {
       }
 
       const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
-      if (!dbUser) return res.status(401).json({ msj: "Unauthorized" });
+      if (!dbUser) return res.status(401).json({ message: "Unauthorized" });
 
       let permissions;
       if (dbUser.customRoleId) {
@@ -41,7 +41,7 @@ export class PermissionControllerService {
 
       return res.status(200).json({ data: permissions.map((p) => p.key) });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -49,40 +49,40 @@ export class PermissionControllerService {
 
   async getBaseRolePermissions(req: Request<{ role: string }>, res: Response) {
     const role = req.params.role as Role;
-    if (!BASE_ROLES.includes(role)) return res.status(400).json({ msj: "Invalid role" });
+    if (!BASE_ROLES.includes(role)) return res.status(400).json({ message: "Invalid role" });
     const tenantId = req.user!.tenantId!;
     try {
       const permissions = await this.repository.getBaseRolePermissions(tenantId, role);
-      return res.status(200).json({ msj: "Role permissions retrieved", data: permissions });
+      return res.status(200).json({ message: "Role permissions retrieved", data: permissions });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
   async assignToBaseRole(req: Request<{ role: string }>, res: Response) {
     const role = req.params.role as Role;
-    if (!BASE_ROLES.includes(role)) return res.status(400).json({ msj: "Invalid role" });
+    if (!BASE_ROLES.includes(role)) return res.status(400).json({ message: "Invalid role" });
     const tenantId = req.user!.tenantId!;
     const { permissionId } = req.body;
-    if (!permissionId) return res.status(400).json({ msj: "permissionId is required" });
+    if (!permissionId) return res.status(400).json({ message: "permissionId is required" });
     try {
       await this.repository.assignToBaseRole(tenantId, role, permissionId);
-      return res.status(200).json({ msj: "Permission assigned to role" });
+      return res.status(200).json({ message: "Permission assigned to role" });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
   async revokeFromBaseRole(req: Request<{ role: string; key: string }>, res: Response) {
     const role = req.params.role as Role;
-    if (!BASE_ROLES.includes(role)) return res.status(400).json({ msj: "Invalid role" });
+    if (!BASE_ROLES.includes(role)) return res.status(400).json({ message: "Invalid role" });
     const tenantId = req.user!.tenantId!;
     const { key } = req.params;
     try {
       await this.repository.revokeFromBaseRole(tenantId, role, key);
-      return res.status(200).json({ msj: "Permission revoked from role" });
+      return res.status(200).json({ message: "Permission revoked from role" });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -92,21 +92,21 @@ export class PermissionControllerService {
     const { id } = req.params;
     try {
       const permissions = await this.repository.getCustomRolePermissions(id);
-      return res.status(200).json({ msj: "Custom role permissions retrieved", data: permissions });
+      return res.status(200).json({ message: "Custom role permissions retrieved", data: permissions });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
   async assignToCustomRole(req: Request<{ id: string }>, res: Response) {
     const { id } = req.params;
     const { permissionId } = req.body;
-    if (!permissionId) return res.status(400).json({ msj: "permissionId is required" });
+    if (!permissionId) return res.status(400).json({ message: "permissionId is required" });
     try {
       await this.repository.assignToCustomRole(id, permissionId);
-      return res.status(200).json({ msj: "Permission assigned to custom role" });
+      return res.status(200).json({ message: "Permission assigned to custom role" });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -114,9 +114,9 @@ export class PermissionControllerService {
     const { id, key } = req.params;
     try {
       await this.repository.revokeFromCustomRole(id, key);
-      return res.status(200).json({ msj: "Permission revoked from custom role" });
+      return res.status(200).json({ message: "Permission revoked from custom role" });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 }

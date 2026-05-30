@@ -34,10 +34,10 @@ export const checkPermissionAny = (...permissionKeys: PermissionKey[]) => {
         permissionKeys.map((key) => userHasPermission(user.id, user.tenantId ?? null, user.role, key))
       );
       if (results.some(Boolean)) return next();
-      return res.status(403).json({ msj: "Forbidden: insufficient permissions" });
+      return res.status(403).json({ message: "Forbidden: insufficient permissions" });
     } catch (error) {
       console.error("[PermissionMiddleware] Error:", error);
-      return res.status(500).json({ msj: "Server error during permission check" });
+      return res.status(500).json({ message: "Server error during permission check" });
     }
   };
 };
@@ -52,42 +52,42 @@ export const checkPermission = (permissionKey: PermissionKey) => {
     try {
       const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
       if (!dbUser || !dbUser.active) {
-        return res.status(401).json({ msj: "Unauthorized" });
+        return res.status(401).json({ message: "Unauthorized" });
       }
 
       if (dbUser.customRoleId) {
         // Usuario con rol personalizado
         const perm = await prisma.permission.findUnique({ where: { key: permissionKey } });
-        if (!perm) return res.status(403).json({ msj: "Permission not found" });
+        if (!perm) return res.status(403).json({ message: "Permission not found" });
 
         const hasPermission = await prisma.customRolePermission.findUnique({
           where: { customRoleId_permissionId: { customRoleId: dbUser.customRoleId, permissionId: perm.id } },
         });
 
         if (!hasPermission) {
-          return res.status(403).json({ msj: "Forbidden: insufficient permissions" });
+          return res.status(403).json({ message: "Forbidden: insufficient permissions" });
         }
       } else {
         // Usuario con rol base (Admin, Operator, Auditor)
         const tenantId = user.tenantId;
-        if (!tenantId) return res.status(403).json({ msj: "Forbidden: no tenant assigned" });
+        if (!tenantId) return res.status(403).json({ message: "Forbidden: no tenant assigned" });
 
         const perm = await prisma.permission.findUnique({ where: { key: permissionKey } });
-        if (!perm) return res.status(403).json({ msj: "Permission not found" });
+        if (!perm) return res.status(403).json({ message: "Permission not found" });
 
         const hasPermission = await prisma.rolePermission.findUnique({
           where: { tenantId_role_permissionId: { tenantId, role: dbUser.role as Role, permissionId: perm.id } },
         });
 
         if (!hasPermission) {
-          return res.status(403).json({ msj: "Forbidden: insufficient permissions" });
+          return res.status(403).json({ message: "Forbidden: insufficient permissions" });
         }
       }
 
       next();
     } catch (error) {
       console.error("[PermissionMiddleware] Error:", error);
-      return res.status(500).json({ msj: "Server error during permission check" });
+      return res.status(500).json({ message: "Server error during permission check" });
     }
   };
 };

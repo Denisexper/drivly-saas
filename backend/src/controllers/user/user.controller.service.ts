@@ -19,12 +19,12 @@ export class UserControllerService {
 
       if (!response) {
         return res.status(404).json({
-          msj: "User not found",
+          message: "User not found",
         });
       }
 
       return res.status(200).json({
-        msj: "User retrived successfully",
+        message: "User retrived successfully",
         data: {
           id: response.id,
           tenantId: response.tenantId,
@@ -38,7 +38,7 @@ export class UserControllerService {
       console.error(`[UserController] Error en getById(${id})`, error);
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -76,7 +76,7 @@ export class UserControllerService {
       console.error(`[UserController] Error en getAll()`, error);
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -99,7 +99,7 @@ export class UserControllerService {
       logAction({ req, action: "CREATE", entity: "User", entityId: response.id, after: { id: response.id, name: response.name, email: response.email, role: response.role, active: response.active } });
 
       return res.status(201).json({
-        msj: "User created successfully",
+        message: "User created successfully",
         data: {
           id: response.id,
           tenantId: response.tenantId,
@@ -114,11 +114,11 @@ export class UserControllerService {
 
       // Capturar si el email ya existe (Prisma P2002)
       if (error.code === "P2002") {
-        return res.status(400).json({ msj: "Email already exists" });
+        return res.status(400).json({ message: "Email already exists" });
       }
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -132,7 +132,7 @@ export class UserControllerService {
       // Verificar si el usuario existe
       const userExist = await this.repository.getById(id);
       if (!userExist) {
-        return res.status(404).json({ msj: "User not found" });
+        return res.status(404).json({ message: "User not found" });
       }
 
       // Lógica de Contraseña
@@ -161,7 +161,7 @@ export class UserControllerService {
       });
 
       return res.status(200).json({
-        msj: "User updated successfully",
+        message: "User updated successfully",
         data: {
           id: response.id,
           name: response.name,
@@ -176,11 +176,11 @@ export class UserControllerService {
       if (error.code === "P2002") {
         return res
           .status(400)
-          .json({ msj: "Email already in use by another user" });
+          .json({ message: "Email already in use by another user" });
       }
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -196,14 +196,14 @@ export class UserControllerService {
 
       if(!response){
         return res.status(404).json({
-          msj: "User not found",
+          message: "User not found",
         })
       }
 
       logAction({ req, action: "DELETE", entity: "User", entityId: id, before: { id: response.id, name: response.name, email: response.email, role: response.role } });
 
       return res.status(200).json({
-        msj: "User deleted successfully",
+        message: "User deleted successfully",
         data: {
           id: response.id,
           name: response.name,
@@ -216,12 +216,12 @@ export class UserControllerService {
 
       if(error.code === 'P2025'){
         return res.status(404).json({
-          msj: "User not found"
+          message: "User not found"
         })
       }
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message
       })
     }

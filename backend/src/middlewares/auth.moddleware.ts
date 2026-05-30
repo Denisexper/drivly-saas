@@ -14,7 +14,7 @@ export const authMiddleware = (
   //virificar si el token vienen en la peticon
   if (!authHeader) {
     return res.status(401).json({
-      msj: "No authorization header provided",
+      message: "No authorization header provided",
     });
   }
 
@@ -24,7 +24,7 @@ export const authMiddleware = (
   //verificar el formato correcto
   if (!token) {
     return res.status(401).json({
-      msj: "Invalid token format. Expected: Bearer <token>",
+      message: "Invalid token format. Expected: Bearer <token>",
     });
   }
 
@@ -47,7 +47,7 @@ export const authMiddleware = (
   } catch (error) {
     console.error("[AuthMiddleware] Token verification failed:", error);
     return res.status(401).json({
-      msj: "Invalid or expired token",
+      message: "Invalid or expired token",
     });
   }
 };

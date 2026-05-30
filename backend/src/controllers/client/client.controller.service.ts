@@ -24,7 +24,7 @@ export class ClienteControllerService {
       }
 
       return res.status(200).json({
-        msj: "Client retrieved sucessfully",
+        message: "Client retrieved sucessfully",
         data: response,
       });
     } catch (error: any) {
@@ -41,20 +41,20 @@ export class ClienteControllerService {
 
       if (response.length === 0) {
         return res.status(200).json({
-          msj: "The list currently is Empty",
+          message: "The list currently is Empty",
           data: response,
           total: response.length,
         });
       }
 
       return res.status(200).json({
-        msj: "Clients retrived sucessfully",
+        message: "Clients retrived sucessfully",
         data: response,
         total: response.length,
       });
     } catch (error: any) {
       res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -70,7 +70,7 @@ export class ClienteControllerService {
       logAction({ req, action: "CREATE", entity: "Client", entityId: response.id, after: response });
 
       return res.status(201).json({
-        msj: "Client Created sucessfully",
+        message: "Client Created sucessfully",
         client: {
           id: response.id,
           firstName: response.firstName,
@@ -82,7 +82,7 @@ export class ClienteControllerService {
       });
     } catch (error: any) {
       res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -100,16 +100,16 @@ export class ClienteControllerService {
       logAction({ req, action: "UPDATE", entity: "Client", entityId: id, before, after: response });
 
       return res.status(200).json({
-        msj: "Client updated successfully",
+        message: "Client updated successfully",
         data: response,
       });
     } catch (error: any) {
       if (error.code === "P2025") {
         // Código de Prisma para "Record not found"
-        return res.status(404).json({ msj: "Client not found" });
+        return res.status(404).json({ message: "Client not found" });
       }
       res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -124,7 +124,7 @@ export class ClienteControllerService {
       logAction({ req, action: "DELETE", entity: "Client", entityId: id, before: response });
 
       return res.status(200).json({
-        msj: "Client deleted successfully",
+        message: "Client deleted successfully",
         ClientDeleted: {
           id: response.id,
           fname: `${response.firstName} ${response.lastName}`
@@ -134,12 +134,12 @@ export class ClienteControllerService {
       //excepcion si el id no existe
       if (error.code === "P2025") {
         return res.status(404).json({
-          msj: "Client not found",
+          message: "Client not found",
         });
       }
 
       res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }

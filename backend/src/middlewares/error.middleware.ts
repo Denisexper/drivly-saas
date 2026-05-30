@@ -16,11 +16,11 @@ export const ErrorMiddleware = (
     const message = err.code === "LIMIT_FILE_SIZE"
       ? "El archivo supera el tamaño máximo permitido de 10MB"
       : "Error al procesar el archivo";
-    return res.status(status).json({ ok: false, msj: message });
+    return res.status(status).json({ ok: false, message: message });
   }
 
   if (err.message === "Solo se permiten imágenes JPG, PNG o WEBP") {
-    return res.status(415).json({ ok: false, msj: err.message });
+    return res.status(415).json({ ok: false, message: err.message });
   }
 
   //valores por defecto en caso de desconocer el error
@@ -61,7 +61,7 @@ export const ErrorMiddleware = (
   // respuesta Final al Cliente
   res.status(status).json({
     ok: false,
-    msj: message,
+    message: message,
     // Solo enviamos el stack (la línea exacta del error) si NO estamos en producción
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
   });

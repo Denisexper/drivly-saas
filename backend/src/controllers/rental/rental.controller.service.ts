@@ -27,10 +27,10 @@ export class RentalControllerService {
     const { id } = req.params;
     try {
       const rental = await this.repository.getById(id);
-      if (!rental) return res.status(404).json({ msj: "Rental not found" });
-      return res.status(200).json({ msj: "Rental retrieved successfully", data: rental });
+      if (!rental) return res.status(404).json({ message: "Rental not found" });
+      return res.status(200).json({ message: "Rental retrieved successfully", data: rental });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -45,11 +45,11 @@ export class RentalControllerService {
     try {
       const rentals = await this.repository.getAll(tenantId, statusFilter);
       return res.status(200).json({
-        msj: rentals.length > 0 ? "Rentals retrieved successfully" : "No rentals found",
+        message: rentals.length > 0 ? "Rentals retrieved successfully" : "No rentals found",
         data: rentals,
       });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -63,27 +63,27 @@ export class RentalControllerService {
     try {
       // 1. Verificar que el vehiculo existe y esta disponible
       const vehicle = await this.repository.findVehicle(vehicleId);
-      if (!vehicle) return res.status(404).json({ msj: "Vehicle not found" });
+      if (!vehicle) return res.status(404).json({ message: "Vehicle not found" });
       if (vehicle.status !== "Available") {
-        return res.status(409).json({ msj: `Vehicle is not available. Current status: ${vehicle.status}` });
+        return res.status(409).json({ message: `Vehicle is not available. Current status: ${vehicle.status}` });
       }
 
       // 2. Verificar que el cliente existe y no esta en blacklist
       const client = await this.repository.findClient(clientId);
-      if (!client) return res.status(404).json({ msj: "Client not found" });
+      if (!client) return res.status(404).json({ message: "Client not found" });
       if (client.blacklisted) {
-        return res.status(403).json({ msj: "Client is blacklisted and cannot rent vehicles" });
+        return res.status(403).json({ message: "Client is blacklisted and cannot rent vehicles" });
       }
 
       // 3. Verificar licencia vigente
       if (client.licenseExp && new Date(client.licenseExp) < new Date()) {
-        return res.status(403).json({ msj: "Client driver license is expired" });
+        return res.status(403).json({ message: "Client driver license is expired" });
       }
 
       // 4. Verificar conflicto de fechas con otros alquileres del mismo vehiculo
       const conflict = await this.repository.hasDateConflict(vehicleId, start, end);
       if (conflict) {
-        return res.status(409).json({ msj: "Vehicle already has a rental in the selected date range" });
+        return res.status(409).json({ message: "Vehicle already has a rental in the selected date range" });
       }
 
       // 5. Calcular totales
@@ -122,10 +122,10 @@ export class RentalControllerService {
       sendRentalConfirmEmail(rental.id).catch((err) => console.error("[Email] sendRentalConfirmEmail failed:", err));
       logAction({ req, action: "CREATE", entity: "Rental", entityId: rental.id, after: sanitizeRental(rental) });
 
-      return res.status(201).json({ msj: "Rental created successfully", data: rental });
+      return res.status(201).json({ message: "Rental created successfully", data: rental });
     } catch (error: any) {
-      if (error.status) return res.status(error.status).json({ msj: error.message });
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      if (error.status) return res.status(error.status).json({ message: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -135,10 +135,10 @@ export class RentalControllerService {
 
     try {
       const rentalExist = await this.repository.getById(id);
-      if (!rentalExist) return res.status(404).json({ msj: "Rental not found" });
+      if (!rentalExist) return res.status(404).json({ message: "Rental not found" });
 
       if (rentalExist.status === "Completed" || rentalExist.status === "Cancelled") {
-        return res.status(400).json({ msj: `Cannot update a rental with status: ${rentalExist.status}` });
+        return res.status(400).json({ message: `Cannot update a rental with status: ${rentalExist.status}` });
       }
 
       // Flujo de devolucion
@@ -155,23 +155,23 @@ export class RentalControllerService {
         sendRentalReturnEmail(id).catch((err) => console.error("[Email] sendRentalReturnEmail failed:", err));
         logAction({ req, action: "RETURN", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist), after: sanitizeRental(completed) });
 
-        return res.status(200).json({ msj: "Rental completed and vehicle returned successfully", data: completed });
+        return res.status(200).json({ message: "Rental completed and vehicle returned successfully", data: completed });
       }
 
       // Flujo de cancelacion
       if (data.status === "Cancelled") {
         const cancelled = await this.repository.cancelRental(id, data.notes ?? undefined);
         logAction({ req, action: "CANCEL", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist), after: sanitizeRental(cancelled) });
-        return res.status(200).json({ msj: "Rental cancelled and vehicle released successfully", data: cancelled });
+        return res.status(200).json({ message: "Rental cancelled and vehicle released successfully", data: cancelled });
       }
 
       const updated = await this.repository.update(id, data);
       logAction({ req, action: "UPDATE", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist), after: sanitizeRental(updated) });
-      return res.status(200).json({ msj: "Rental updated successfully", data: updated });
+      return res.status(200).json({ message: "Rental updated successfully", data: updated });
     } catch (error: any) {
-      if (error.status) return res.status(error.status).json({ msj: error.message });
-      if (error.code === "P2025") return res.status(404).json({ msj: "Rental not found" });
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      if (error.status) return res.status(error.status).json({ message: error.message });
+      if (error.code === "P2025") return res.status(404).json({ message: "Rental not found" });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -179,11 +179,11 @@ export class RentalControllerService {
     const { id } = req.params;
     try {
       const deleted = await this.repository.forceDelete(id);
-      return res.status(200).json({ msj: "Rental force deleted successfully", data: deleted });
+      return res.status(200).json({ message: "Rental force deleted successfully", data: deleted });
     } catch (error: any) {
-      if (error.status) return res.status(error.status).json({ msj: error.message });
-      if (error.code === "P2025") return res.status(404).json({ msj: "Rental not found" });
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      if (error.status) return res.status(error.status).json({ message: error.message });
+      if (error.code === "P2025") return res.status(404).json({ message: "Rental not found" });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -191,10 +191,10 @@ export class RentalControllerService {
     const { id } = req.params;
     try {
       const rental = await this.repository.getByIdWithDetails(id);
-      if (!rental) return res.status(404).json({ msj: "Rental not found" });
+      if (!rental) return res.status(404).json({ message: "Rental not found" });
       generateRentalContractPDF(rental, res);
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -202,18 +202,18 @@ export class RentalControllerService {
     const { id } = req.params;
     try {
       const rentalExist = await this.repository.getById(id);
-      if (!rentalExist) return res.status(404).json({ msj: "Rental not found" });
+      if (!rentalExist) return res.status(404).json({ message: "Rental not found" });
 
       if (rentalExist.status === "Active") {
-        return res.status(400).json({ msj: "Cannot delete an active rental. Complete or cancel it first." });
+        return res.status(400).json({ message: "Cannot delete an active rental. Complete or cancel it first." });
       }
 
       await this.repository.delete(id);
       logAction({ req, action: "DELETE", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist) });
-      return res.status(200).json({ msj: "Rental deleted successfully" });
+      return res.status(200).json({ message: "Rental deleted successfully" });
     } catch (error: any) {
-      if (error.code === "P2025") return res.status(404).json({ msj: "Rental not found" });
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      if (error.code === "P2025") return res.status(404).json({ message: "Rental not found" });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 }

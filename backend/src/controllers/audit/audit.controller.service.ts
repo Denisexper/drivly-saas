@@ -29,7 +29,7 @@ export class AuditControllerService {
       const { data, total } = await this.repository.getAll(filter);
 
       return res.status(200).json({
-        msj: "Audit logs retrieved successfully",
+        message: "Audit logs retrieved successfully",
         data,
         total,
         page,
@@ -38,7 +38,7 @@ export class AuditControllerService {
       });
     } catch (error: any) {
       console.error("[AuditController] Error en getAll():", error);
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 }

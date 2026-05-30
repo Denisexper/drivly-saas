@@ -38,7 +38,7 @@ export class AuthControllerService {
             });
 
             return res.status(200).json({
-                msj: "Impersonación exitosa",
+                message: "Impersonación exitosa",
                 token,
                 data: {
                     id: req.user!.id,
@@ -73,7 +73,7 @@ export class AuthControllerService {
             });
 
             return res.status(201).json({
-                msj: "User created Successfully",
+                message: "User created Successfully",
                 data: {
                     name: newUser.name,
                     email: newUser.email,
@@ -129,7 +129,7 @@ export class AuthControllerService {
             }).catch((err) => console.error("[Email] sendEmailVerificationEmail failed:", err));
 
             return res.status(201).json({
-                msj: "Empresa creada exitosamente",
+                message: "Empresa creada exitosamente",
                 data: {
                     tenantId: tenant.id,
                     tenantName: tenant.name,
@@ -151,7 +151,7 @@ export class AuthControllerService {
 
             // Respuesta genérica para no revelar si el email existe
             if (!user) {
-                return res.status(200).json({ msj: "Si ese email existe, recibirás instrucciones en breve." });
+                return res.status(200).json({ message: "Si ese email existe, recibirás instrucciones en breve." });
             }
 
             const token = randomUUID();
@@ -166,7 +166,7 @@ export class AuthControllerService {
                 resetToken: token,
             }).catch((err) => console.error("[Email] sendPasswordResetEmail failed:", err));
 
-            return res.status(200).json({ msj: "Si ese email existe, recibirás instrucciones en breve." });
+            return res.status(200).json({ message: "Si ese email existe, recibirás instrucciones en breve." });
         } catch (error) {
             next(error);
         }
@@ -183,7 +183,7 @@ export class AuthControllerService {
             const hashedPassword = await EncryptService.hashPassword(newPassword);
             await this.authRepo.resetPassword(user.id, hashedPassword);
 
-            return res.status(200).json({ msj: "Contraseña actualizada exitosamente" });
+            return res.status(200).json({ message: "Contraseña actualizada exitosamente" });
         } catch (error) {
             next(error);
         }
@@ -199,7 +199,7 @@ export class AuthControllerService {
                 after: { role: req.user!.role },
             });
 
-            return res.status(200).json({ msj: "Sesión cerrada" });
+            return res.status(200).json({ message: "Sesión cerrada" });
         } catch (error) {
             next(error);
         }
@@ -215,7 +215,7 @@ export class AuthControllerService {
 
             await this.authRepo.markEmailVerified(user.id);
 
-            return res.status(200).json({ msj: "Email verificado exitosamente" });
+            return res.status(200).json({ message: "Email verificado exitosamente" });
         } catch (error) {
             next(error);
         }
@@ -228,7 +228,7 @@ export class AuthControllerService {
             const user = await this.authRepo.findByEmail(email);
 
             if (!user || user.emailVerified) {
-                return res.status(200).json({ msj: "Si ese email existe y no está verificado, recibirás un correo en breve." });
+                return res.status(200).json({ message: "Si ese email existe y no está verificado, recibirás un correo en breve." });
             }
 
             const tenant = await this.tenantRepo.getById(user.tenantId);
@@ -246,7 +246,7 @@ export class AuthControllerService {
                 tenantSlug: tenant?.slug ?? "",
             }).catch((err) => console.error("[Email] resendVerification failed:", err));
 
-            return res.status(200).json({ msj: "Si ese email existe y no está verificado, recibirás un correo en breve." });
+            return res.status(200).json({ message: "Si ese email existe y no está verificado, recibirás un correo en breve." });
         } catch (error) {
             next(error);
         }
@@ -308,7 +308,7 @@ export class AuthControllerService {
             });
 
             return res.status(200).json({
-                msj: "Bienvenido al sistema",
+                message: "Bienvenido al sistema",
                 token,
                 data: {
                     id: userExist.id,

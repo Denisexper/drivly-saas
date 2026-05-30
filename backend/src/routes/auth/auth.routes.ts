@@ -12,7 +12,7 @@ const loginLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { msj: "Demasiados intentos de login, espera 1 minuto." },
+  message: { message: "Demasiados intentos de login, espera 1 minuto." },
 });
 
 export class AuthRoutes {

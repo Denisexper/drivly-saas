@@ -4,11 +4,11 @@ export const tenantMiddleware = (req: Request, res: Response, next: NextFunction
   const user = req.user;
 
   if (!user) {
-    return res.status(401).json({ msj: "No autenticado" });
+    return res.status(401).json({ message: "No autenticado" });
   }
 
   if (!user.tenantId) {
-    return res.status(403).json({ msj: "Usuario sin tenant asignado" });
+    return res.status(403).json({ message: "Usuario sin tenant asignado" });
   }
 
   if (req.body && typeof req.body === "object") {

@@ -20,12 +20,12 @@ export class TenantControllerService {
     const { slug } = req.params;
     try {
       const tenant = await this.repository.getBySlug(slug);
-      if (!tenant) return res.status(404).json({ msj: "Empresa no encontrada" });
+      if (!tenant) return res.status(404).json({ message: "Empresa no encontrada" });
       return res.status(200).json({
         data: { name: tenant.name, slug: tenant.slug, active: tenant.active },
       });
     } catch (error: any) {
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -37,12 +37,12 @@ export class TenantControllerService {
 
       if (!response) {
         return res.status(404).json({
-          msj: "Tenant not found",
+          message: "Tenant not found",
         });
       }
 
       return res.status(200).json({
-        msj: "Tenant retrived successfully",
+        message: "Tenant retrived successfully",
         data: {
           id: response.id,
           name: response.name,
@@ -56,7 +56,7 @@ export class TenantControllerService {
 
       //general erros
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -76,7 +76,7 @@ export class TenantControllerService {
       }));
 
       return res.status(200).json({
-        msj:
+        message:
           cleanData.length > 0
             ? "Tenant retrived successfully"
             : "Tenant list empty",
@@ -85,7 +85,7 @@ export class TenantControllerService {
     } catch (error: any) {
       console.error(`[TenantController] Error en getAll():`, error);
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -94,10 +94,10 @@ export class TenantControllerService {
   async getStats(req: Request, res: Response) {
     try {
       const stats = await this.repository.getStats();
-      return res.status(200).json({ msj: "Stats retrieved successfully", data: stats });
+      return res.status(200).json({ message: "Stats retrieved successfully", data: stats });
     } catch (error: any) {
       console.error("[TenantController] Error en getStats():", error);
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -106,7 +106,7 @@ export class TenantControllerService {
 
     if (!name || !adminName || !adminEmail || !adminPassword) {
       return res.status(400).json({
-        msj: "Missing required fields",
+        message: "Missing required fields",
         fields: {
           name: !name ? "Required" : "OK",
           adminName: !adminName ? "Required" : "OK",
@@ -120,12 +120,12 @@ export class TenantControllerService {
       const slug = slugify(name);
 
       if (!slug) {
-        return res.status(400).json({ msj: "El nombre no genera un slug válido" });
+        return res.status(400).json({ message: "El nombre no genera un slug válido" });
       }
 
       const slugExists = await this.repository.getBySlug(slug);
       if (slugExists) {
-        return res.status(409).json({ msj: `El slug '${slug}' ya está en uso. Elige un nombre diferente.` });
+        return res.status(409).json({ message: `El slug '${slug}' ya está en uso. Elige un nombre diferente.` });
       }
 
       const hashedPassword = await EncryptService.hashPassword(adminPassword);
@@ -142,7 +142,7 @@ export class TenantControllerService {
       );
 
       return res.status(201).json({
-        msj: "Empresa creada exitosamente",
+        message: "Empresa creada exitosamente",
         data: {
           tenant: { id: tenant.id, name: tenant.name, slug: tenant.slug, plan: tenant.plan, active: tenant.active },
           admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role },
@@ -150,7 +150,7 @@ export class TenantControllerService {
       });
     } catch (error: any) {
       console.error(`[TenantController] Error en create():`, error);
-      return res.status(500).json({ msj: "Server error", error: error.message });
+      return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
 
@@ -163,12 +163,12 @@ export class TenantControllerService {
 
     if (!tenantExist) {
       return res.status(404).json({
-        msj: "Tenant not found",
+        message: "Tenant not found",
       });
     }
 
     if (!data || Object.keys(data).length === 0) {
-      return res.status(400).json({ msj: "No data provided" });
+      return res.status(400).json({ message: "No data provided" });
     }
 
     //validar los espacios en blanco
@@ -179,14 +179,14 @@ export class TenantControllerService {
     );
 
     if (!hasContent) {
-      return res.status(400).json({ msj: "Provided fields cannot be empty" });
+      return res.status(400).json({ message: "Provided fields cannot be empty" });
     }
 
     try {
       const response = await this.repository.update(id, data);
 
       return res.status(200).json({
-        msj: "Tenant updated successfully",
+        message: "Tenant updated successfully",
         data: {
           id: response.id,
           name: response.name,
@@ -199,11 +199,11 @@ export class TenantControllerService {
       console.error(`[TenantController] Error en update(${id}):`, error);
       if (error.code === "P2025") {
         // Código de Prisma para "Record not found"
-        return res.status(404).json({ msj: "Tenant not found" });
+        return res.status(404).json({ message: "Tenant not found" });
       }
 
       res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -217,12 +217,12 @@ export class TenantControllerService {
 
       if (!response) {
         return res.status(404).json({
-          msj: "Tenant not found",
+          message: "Tenant not found",
         });
       }
 
       return res.status(200).json({
-        msj: "Tenant deleted successfully",
+        message: "Tenant deleted successfully",
         data: {
           id: response.id,
           name: response.name,
@@ -236,12 +236,12 @@ export class TenantControllerService {
 
       if (error.code === "P2025") {
         return res.status(404).json({
-          msj: "Tenant not found2",
+          message: "Tenant not found2",
         });
       }
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }

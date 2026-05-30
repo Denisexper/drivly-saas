@@ -15,15 +15,15 @@ export class ReportControllerService {
     const date = (req.query.date as string) ?? new Date().toISOString().split("T")[0]
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return res.status(400).json({ msj: "Formato de fecha inválido. Use YYYY-MM-DD." })
+      return res.status(400).json({ message: "Formato de fecha inválido. Use YYYY-MM-DD." })
     }
 
     try {
       const data = await this.repository.getDailySummary(date, tenantId)
-      return res.status(200).json({ msj: "Daily summary retrieved", data })
+      return res.status(200).json({ message: "Daily summary retrieved", data })
     } catch (error: any) {
       console.error("[ReportController] Error en getDailySummary():", error)
-      return res.status(500).json({ msj: "Server error", error: error.message })
+      return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
 
@@ -35,10 +35,10 @@ export class ReportControllerService {
 
     try {
       const data = await this.repository.getReceivables(tenantId)
-      return res.status(200).json({ msj: "Receivables retrieved", data })
+      return res.status(200).json({ message: "Receivables retrieved", data })
     } catch (error: any) {
       console.error("[ReportController] Error en getReceivables():", error)
-      return res.status(500).json({ msj: "Server error", error: error.message })
+      return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
 
@@ -56,7 +56,7 @@ export class ReportControllerService {
     const { dateFrom, dateTo, status, vehicleId, format } = req.query as Record<string, string>
 
     if (!this.isValidDate(dateFrom) || !this.isValidDate(dateTo)) {
-      return res.status(400).json({ msj: "Formato de fecha inválido. Use YYYY-MM-DD." })
+      return res.status(400).json({ message: "Formato de fecha inválido. Use YYYY-MM-DD." })
     }
 
     try {
@@ -66,10 +66,10 @@ export class ReportControllerService {
         return this.sendRentalsCsv(res, data)
       }
 
-      return res.status(200).json({ msj: "Rentals report retrieved", data })
+      return res.status(200).json({ message: "Rentals report retrieved", data })
     } catch (error: any) {
       console.error("[ReportController] Error en getRentalsReport():", error)
-      return res.status(500).json({ msj: "Server error", error: error.message })
+      return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
 
@@ -78,7 +78,7 @@ export class ReportControllerService {
     const { dateFrom, dateTo, format } = req.query as Record<string, string>
 
     if (!this.isValidDate(dateFrom) || !this.isValidDate(dateTo)) {
-      return res.status(400).json({ msj: "Formato de fecha inválido. Use YYYY-MM-DD." })
+      return res.status(400).json({ message: "Formato de fecha inválido. Use YYYY-MM-DD." })
     }
 
     try {
@@ -88,10 +88,10 @@ export class ReportControllerService {
         return this.sendPaymentsCsv(res, data)
       }
 
-      return res.status(200).json({ msj: "Payments report retrieved", data })
+      return res.status(200).json({ message: "Payments report retrieved", data })
     } catch (error: any) {
       console.error("[ReportController] Error en getPaymentsReport():", error)
-      return res.status(500).json({ msj: "Server error", error: error.message })
+      return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
 
@@ -100,7 +100,7 @@ export class ReportControllerService {
     const { dateFrom, dateTo, format } = req.query as Record<string, string>
 
     if (!this.isValidDate(dateFrom) || !this.isValidDate(dateTo)) {
-      return res.status(400).json({ msj: "Formato de fecha inválido. Use YYYY-MM-DD." })
+      return res.status(400).json({ message: "Formato de fecha inválido. Use YYYY-MM-DD." })
     }
 
     try {
@@ -110,10 +110,10 @@ export class ReportControllerService {
         return this.sendVehiclesCsv(res, data)
       }
 
-      return res.status(200).json({ msj: "Vehicles report retrieved", data })
+      return res.status(200).json({ message: "Vehicles report retrieved", data })
     } catch (error: any) {
       console.error("[ReportController] Error en getVehiclesReport():", error)
-      return res.status(500).json({ msj: "Server error", error: error.message })
+      return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
 

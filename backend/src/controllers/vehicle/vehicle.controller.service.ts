@@ -21,12 +21,12 @@ export class VehicleControllerService {
 
       if (!response) {
         return res.status(404).json({
-          msj: "Vehicle not found",
+          message: "Vehicle not found",
         });
       }
 
       return res.status(200).json({
-        msj: "Vehicle retrived successfully",
+        message: "Vehicle retrived successfully",
         data: {
           id: response.id,
           tenantId: response.tenantId,
@@ -51,12 +51,12 @@ export class VehicleControllerService {
       //validamos por si cambia en un pequeno lapso es objeto(prisma error code)
       if (error.code === "P2025") {
         return res.status(404).json({
-          msj: "Vehicle not found2",
+          message: "Vehicle not found2",
         });
       }
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -90,7 +90,7 @@ export class VehicleControllerService {
       }));
 
       return res.status(200).json({
-        msj:
+        message:
           cleanData.length > 0
             ? "Vehicle list retrived successfully"
             : "Vehicle list empty",
@@ -101,7 +101,7 @@ export class VehicleControllerService {
       console.error(`[VehicleController] Error en getAll()`, error);
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -116,7 +116,7 @@ export class VehicleControllerService {
       logAction({ req, action: "CREATE", entity: "Vehicle", entityId: response.id, after: { ...response, dailyRate: Number(response.dailyRate) } });
 
       return res.status(201).json({
-        msj: "Vehicle created successfully",
+        message: "Vehicle created successfully",
         data: {
           id: response.id,
           tenantId: response.tenantId,
@@ -134,12 +134,12 @@ export class VehicleControllerService {
       //validamos placa porque es unique en el schema
       if (error.code === "P2002") {
         return res.status(400).json({
-          msj: "Plate already exist",
+          message: "Plate already exist",
         });
       }
 
       return res.status(500).json({
-        msj: "Server error",
+        message: "Server error",
         error: error.message,
       });
     }
@@ -161,7 +161,7 @@ export class VehicleControllerService {
 
       if (!response) {
         return res.status(404).json({
-          msj: "vehicle not found",
+          message: "vehicle not found",
         });
       }
 
@@ -175,7 +175,7 @@ export class VehicleControllerService {
       });
 
       return res.status(200).json({
-        msj: "vehicle updated successfully",
+        message: "vehicle updated successfully",
         data: {
           id: response.id,
           tenantId: response.tenantId,
@@ -192,12 +192,12 @@ export class VehicleControllerService {
 
       if (error.code === "P2025") {
         return res.status(404).json({
-          msj: "Vehicle not found2",
+          message: "Vehicle not found2",
         });
       }
 
       return res.status(500).json({
-        msj: "Server Error",
+        message: "Server Error",
         error: error.message,
       });
     }
@@ -215,14 +215,14 @@ export class VehicleControllerService {
 
       if(!response){
         return res.status(404).json({
-          msj: "Vehicle not found"
+          message: "Vehicle not found"
         })
       }
 
       logAction({ req, action: "DELETE", entity: "Vehicle", entityId: id, before: { ...response, dailyRate: Number(response.dailyRate) } });
 
       return res.status(200).json({
-        msj: "Vehicle deleted successfully",
+        message: "Vehicle deleted successfully",
         data: {
           id: response.id,
           tenantId: response.tenantId,
@@ -239,12 +239,12 @@ export class VehicleControllerService {
 
       if(error.code === 'P2025'){
         return res.status(404).json({
-          msj: "Vehicle not found"
+          message: "Vehicle not found"
         })
       }
 
       return res.status(500).json({
-        msj: "Server Error",
+        message: "Server Error",
         error: error.message
       })
     }

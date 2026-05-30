@@ -69,7 +69,7 @@ describe("RentalController.create", () => {
     const res = makeRes();
     await controller.create(makeReq({ body: baseBody }), res);
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ msj: "Vehicle not found" }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "Vehicle not found" }));
   });
 
   it("retorna 409 si el vehículo no está disponible", async () => {
@@ -77,7 +77,7 @@ describe("RentalController.create", () => {
     const res = makeRes();
     await controller.create(makeReq({ body: baseBody }), res);
     expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ msj: expect.stringContaining("not available") }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("not available") }));
   });
 
   it("retorna 404 si el cliente no existe", async () => {
@@ -86,7 +86,7 @@ describe("RentalController.create", () => {
     const res = makeRes();
     await controller.create(makeReq({ body: baseBody }), res);
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ msj: "Client not found" }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "Client not found" }));
   });
 
   it("retorna 403 si el cliente está en lista negra", async () => {
@@ -95,7 +95,7 @@ describe("RentalController.create", () => {
     const res = makeRes();
     await controller.create(makeReq({ body: baseBody }), res);
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ msj: expect.stringContaining("blacklisted") }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("blacklisted") }));
   });
 
   it("retorna 403 si la licencia del cliente está vencida", async () => {
@@ -104,7 +104,7 @@ describe("RentalController.create", () => {
     const res = makeRes();
     await controller.create(makeReq({ body: baseBody }), res);
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ msj: expect.stringContaining("license is expired") }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("license is expired") }));
   });
 
   it("retorna 409 si hay conflicto de fechas", async () => {
@@ -114,7 +114,7 @@ describe("RentalController.create", () => {
     const res = makeRes();
     await controller.create(makeReq({ body: baseBody }), res);
     expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ msj: expect.stringContaining("date range") }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("date range") }));
   });
 
   it("crea el alquiler y calcula días, subtotal y total correctamente", async () => {
@@ -157,7 +157,7 @@ describe("RentalController.update", () => {
     const res = makeRes();
     await controller.update(makeReq({ params: { id: "rental-1" } as any, body: {} }) as any, res);
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ msj: expect.stringContaining("Completed") }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("Completed") }));
   });
 
   it("retorna 400 si se intenta actualizar un alquiler cancelado", async () => {
@@ -193,7 +193,7 @@ describe("RentalController.delete", () => {
     const res = makeRes();
     await controller.delete(makeReq({ params: { id: "rental-1" } as any }) as any, res);
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ msj: expect.stringContaining("active") }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("active") }));
   });
 
   it("elimina exitosamente un alquiler completado", async () => {
