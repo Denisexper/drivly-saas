@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { Request, Response } from "express";
 import { AuditRepositoryInterface } from "../../interfaces/audit/audit.repository.interface";
 import { GetAuditLogsFilter } from "../../types/audit/audit.types";
@@ -37,7 +38,7 @@ export class AuditControllerService {
         totalPages: Math.ceil(total / limit),
       });
     } catch (error: any) {
-      console.error("[AuditController] Error en getAll():", error);
+      logger.error({ err: error }, "[AuditController] Error en getAll():");
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }

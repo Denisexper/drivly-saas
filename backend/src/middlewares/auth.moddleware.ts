@@ -1,3 +1,4 @@
+import logger from "../utils/logger";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../services/enviroments.service";
@@ -45,7 +46,7 @@ export const authMiddleware = (
     //si todo esta bien pasamos al controlador o a la ruta de la peticion
     next();
   } catch (error) {
-    console.error("[AuthMiddleware] Token verification failed:", error);
+    logger.error({ err: error }, "[AuthMiddleware] Token verification failed:");
     return res.status(401).json({
       message: "Invalid or expired token",
     });

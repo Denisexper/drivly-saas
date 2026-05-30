@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { PaymentRepositoryInterface } from "../../interfaces/payment/payment.repository.interface";
 import { Request, Response } from "express";
 import { CreatePaymentInput } from "../../types/payment/payment.types";
@@ -18,7 +19,7 @@ export class PaymentControllerService {
         data: { ...response, amount: response.amount.toString() },
       });
     } catch (error: any) {
-      console.error(`[Payment controller] Error en getById(${id}):`, error);
+      logger.error({ err: error }, `[Payment controller] Error en getById(${id}):`);
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -35,7 +36,7 @@ export class PaymentControllerService {
         data: response,
       });
     } catch (error: any) {
-      console.error("[PaymentController] Error en getAll():", error);
+      logger.error({ err: error }, "[PaymentController] Error en getAll():");
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -45,7 +46,7 @@ export class PaymentControllerService {
     try {
       const response = await this.repository.create(data);
 
-      sendPaymentReceiptEmail(response.id).catch((err) => console.error("[Email] sendPaymentReceiptEmail failed:", err));
+      sendPaymentReceiptEmail(response.id).catch((err) => logger.error({ err: err }, "[Email] sendPaymentReceiptEmail failed:"));
       logAction({ req, action: "CREATE", entity: "Payment", entityId: response.id, after: { ...response, amount: response.amount.toString() } });
 
       return res.status(201).json({
@@ -64,7 +65,7 @@ export class PaymentControllerService {
       if (error.message?.includes("El monto excede") || error.message?.includes("Rental not found")) {
         return res.status(422).json({ message: error.message });
       }
-      console.error("[PaymentController] Error en create():", error);
+      logger.error({ err: error }, "[PaymentController] Error en create():");
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -88,7 +89,7 @@ export class PaymentControllerService {
       });
     } catch (error: any) {
       if (error.code === "P2025") return res.status(404).json({ message: "Payment not found" });
-      console.error(`[PaymentController] Error en delete(${id}):`, error);
+      logger.error({ err: error }, `[PaymentController] Error en delete(${id}):`);
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -100,7 +101,7 @@ export class PaymentControllerService {
       if (!payment) return res.status(404).json({ message: "Payment not found" });
       generatePaymentReceiptPDF(payment, res);
     } catch (error: any) {
-      console.error(`[PaymentController] Error en getPdfReceipt(${id}):`, error);
+      logger.error({ err: error }, `[PaymentController] Error en getPdfReceipt(${id}):`);
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -112,7 +113,7 @@ export class PaymentControllerService {
       return res.status(200).json({ message: "Payment summary retrieved", data: summary });
     } catch (error: any) {
       if (error.message === "Rental not found") return res.status(404).json({ message: "Rental not found" });
-      console.error(`[PaymentController] Error en getPaymentSummary(${id}):`, error);
+      logger.error({ err: error }, `[PaymentController] Error en getPaymentSummary(${id}):`);
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }

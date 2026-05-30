@@ -1,3 +1,4 @@
+import logger from "../utils/logger";
 import { Role } from "@prisma/client";
 import prisma from "../dataBase/prisma";
 import { DEFAULT_ROLE_PERMISSIONS, PERMISSIONS } from "./manifest";
@@ -19,7 +20,7 @@ export async function syncPermissions(): Promise<void> {
     where: { key: { notIn: validKeys } },
   });
 
-  console.log(`[Permissions] ${allPerms.length} permissions synced`);
+  logger.info(`[Permissions] ${allPerms.length} permissions synced`);
 
   // Propagar permisos nuevos del manifest a todos los tenants existentes
   await propagateNewPermissionsToExistingTenants();
@@ -48,7 +49,7 @@ async function propagateNewPermissionsToExistingTenants(): Promise<void> {
     }
   }
 
-  console.log(`[Permissions] Role permissions propagated to ${tenants.length} tenant(s)`);
+  logger.info(`[Permissions] Role permissions propagated to ${tenants.length} tenant(s)`);
 }
 
 // Seed de permisos por defecto para los roles base de un tenant nuevo
@@ -71,5 +72,5 @@ export async function seedTenantDefaultPermissions(tenantId: string): Promise<vo
     }
   }
 
-  console.log(`[Permissions] Default permissions seeded for tenant ${tenantId}`);
+  logger.info(`[Permissions] Default permissions seeded for tenant ${tenantId}`);
 }

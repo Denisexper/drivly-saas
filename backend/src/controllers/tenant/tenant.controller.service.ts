@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { Request, Response } from "express";
 import { TenantRepositoryInterface } from "../../interfaces/tenant/tenant.repository.interface";
 import { seedTenantDefaultPermissions } from "../../permissions/sync";
@@ -52,7 +53,7 @@ export class TenantControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[TenantController] Error en getById(${id}):`, error);
+      logger.error({ err: error }, `[TenantController] Error en getById(${id}):`);
 
       //general erros
       return res.status(500).json({
@@ -83,7 +84,7 @@ export class TenantControllerService {
         data: cleanData,
       });
     } catch (error: any) {
-      console.error(`[TenantController] Error en getAll():`, error);
+      logger.error({ err: error }, `[TenantController] Error en getAll():`);
       return res.status(500).json({
         message: "Server error",
         error: error.message,
@@ -96,7 +97,7 @@ export class TenantControllerService {
       const stats = await this.repository.getStats();
       return res.status(200).json({ message: "Stats retrieved successfully", data: stats });
     } catch (error: any) {
-      console.error("[TenantController] Error en getStats():", error);
+      logger.error({ err: error }, "[TenantController] Error en getStats():");
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -138,7 +139,7 @@ export class TenantControllerService {
       await seedTenantDefaultPermissions(tenant.id);
 
       sendWelcomeEmail({ adminName, adminEmail, tenantName: tenant.name, tenantSlug: tenant.slug }).catch(
-        (err) => console.error("[Email] sendWelcomeEmail failed:", err)
+        (err) => logger.error({ err: err }, "[Email] sendWelcomeEmail failed:")
       );
 
       return res.status(201).json({
@@ -149,7 +150,7 @@ export class TenantControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[TenantController] Error en create():`, error);
+      logger.error({ err: error }, `[TenantController] Error en create():`);
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -196,7 +197,7 @@ export class TenantControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[TenantController] Error en update(${id}):`, error);
+      logger.error({ err: error }, `[TenantController] Error en update(${id}):`);
       if (error.code === "P2025") {
         // Código de Prisma para "Record not found"
         return res.status(404).json({ message: "Tenant not found" });
@@ -232,7 +233,7 @@ export class TenantControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[TenantController] Error en delete(${id}):`, error);
+      logger.error({ err: error }, `[TenantController] Error en delete(${id}):`);
 
       if (error.code === "P2025") {
         return res.status(404).json({

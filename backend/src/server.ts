@@ -1,3 +1,4 @@
+import logger from "./utils/logger";
 import { PORT } from "./services/enviroments.service";
 import express, { Request, Response } from "express";
 import cors from "cors";
@@ -41,6 +42,6 @@ app.use((req: Request, res: Response) => {
 app.use(ErrorMiddleware);
 
 app.listen(PORT, async () => {
-  console.log(`server up in http://localhost:${PORT}`);
+  logger.info(`server up in http://localhost:${PORT}`);
   await syncPermissions();
 });

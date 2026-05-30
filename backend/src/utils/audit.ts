@@ -1,3 +1,4 @@
+import logger from "./logger";
 import { Request } from "express";
 import prisma from "../dataBase/prisma";
 import { AuditAction, AuditEntity } from "../types/audit/audit.types";
@@ -35,5 +36,5 @@ export function logAction({ req, action, entity, entityId, before = null, after 
         userAgent: req.headers["user-agent"] ?? null,
       },
     })
-    .catch((err) => console.error("[AuditLog] Failed to write log:", err));
+    .catch((err) => logger.error({ err: err }, "[AuditLog] Failed to write log:"));
 }

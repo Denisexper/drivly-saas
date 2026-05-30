@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { Request, Response } from "express";
 import { TenantRepositoryInterface } from "../../interfaces/tenant/tenant.repository.interface";
 import { UpdateSettingsInput } from "../../types/settings/settings.types";
@@ -26,7 +27,7 @@ export class SettingsControllerService {
         },
       });
     } catch (error: any) {
-      console.error("[SettingsController] Error en getMySettings():", error);
+      logger.error({ err: error }, "[SettingsController] Error en getMySettings():");
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -45,7 +46,7 @@ export class SettingsControllerService {
         },
       });
     } catch (error: any) {
-      console.error("[SettingsController] Error en updateMySettings():", error);
+      logger.error({ err: error }, "[SettingsController] Error en updateMySettings():");
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }

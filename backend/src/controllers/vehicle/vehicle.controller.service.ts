@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { Request, Response } from "express";
 import { VehicleRepositoryInterface } from "../../interfaces/vehicle/vehicle.repository.interface";
 import {
@@ -46,7 +47,7 @@ export class VehicleControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[VehicleController] Error in getById(${id})`, error);
+      logger.error({ err: error }, `[VehicleController] Error in getById(${id})`);
 
       //validamos por si cambia en un pequeno lapso es objeto(prisma error code)
       if (error.code === "P2025") {
@@ -98,7 +99,7 @@ export class VehicleControllerService {
         total: cleanData.length,
       });
     } catch (error: any) {
-      console.error(`[VehicleController] Error en getAll()`, error);
+      logger.error({ err: error }, `[VehicleController] Error en getAll()`);
 
       return res.status(500).json({
         message: "Server error",
@@ -129,7 +130,7 @@ export class VehicleControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[VehicleController] Error en create()`, error);
+      logger.error({ err: error }, `[VehicleController] Error en create()`);
 
       //validamos placa porque es unique en el schema
       if (error.code === "P2002") {
@@ -188,7 +189,7 @@ export class VehicleControllerService {
         }
       });
     } catch (error: any) {
-      console.error(`[VehicleController] Error en update(${id}):`, error);
+      logger.error({ err: error }, `[VehicleController] Error en update(${id}):`);
 
       if (error.code === "P2025") {
         return res.status(404).json({
@@ -235,7 +236,7 @@ export class VehicleControllerService {
         }
       })
     } catch (error: any) {
-      console.error(`[VehicleController] Error in delete(${id})`, error)
+      logger.error({ err: error }, `[VehicleController] Error in delete(${id})`)
 
       if(error.code === 'P2025'){
         return res.status(404).json({

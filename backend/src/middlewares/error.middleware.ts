@@ -1,3 +1,4 @@
+import logger from "../utils/logger";
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
 export const ErrorMiddleware = (
@@ -8,7 +9,7 @@ export const ErrorMiddleware = (
 ) => {
   //log de error desconocido (desarrollador)
   //nombre del error y el mensaje para rapido debug
-  console.error(`[Error Handler] ${err.name || "Error"}: ${err.message}`);
+  logger.error(`[Error Handler] ${err.name || "Error"}: ${err.message}`);
 
   // errores de multer (upload de fotos)
   if (err instanceof multer.MulterError) {

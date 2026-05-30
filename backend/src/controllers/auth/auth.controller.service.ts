@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { Request, Response, NextFunction } from "express";
 import { randomUUID } from "crypto";
 import { LoginInput, RegisterInput, CompanyRegisterInput } from "../../types/auth/auth.type";
@@ -126,7 +127,7 @@ export class AuthControllerService {
                 verifyToken,
                 tenantName: tenant.name,
                 tenantSlug: tenant.slug,
-            }).catch((err) => console.error("[Email] sendEmailVerificationEmail failed:", err));
+            }).catch((err) => logger.error({ err: err }, "[Email] sendEmailVerificationEmail failed:"));
 
             return res.status(201).json({
                 message: "Empresa creada exitosamente",
@@ -164,7 +165,7 @@ export class AuthControllerService {
                 userName: user.name,
                 userEmail: user.email,
                 resetToken: token,
-            }).catch((err) => console.error("[Email] sendPasswordResetEmail failed:", err));
+            }).catch((err) => logger.error({ err: err }, "[Email] sendPasswordResetEmail failed:"));
 
             return res.status(200).json({ message: "Si ese email existe, recibirás instrucciones en breve." });
         } catch (error) {
@@ -244,7 +245,7 @@ export class AuthControllerService {
                 verifyToken,
                 tenantName: tenant?.name ?? "",
                 tenantSlug: tenant?.slug ?? "",
-            }).catch((err) => console.error("[Email] resendVerification failed:", err));
+            }).catch((err) => logger.error({ err: err }, "[Email] resendVerification failed:"));
 
             return res.status(200).json({ message: "Si ese email existe y no está verificado, recibirás un correo en breve." });
         } catch (error) {

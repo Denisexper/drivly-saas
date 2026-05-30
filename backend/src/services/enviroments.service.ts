@@ -1,3 +1,4 @@
+import logger from "../utils/logger";
 import { config } from "dotenv";
 
 config();
@@ -17,7 +18,7 @@ const requiredEnvVars = [
 
 requiredEnvVars.forEach((env) => {
   if (!process.env[env]) {
-    console.error(`❌ ERROR: ${env} no está definida en el archivo .env`);
+    logger.error(`❌ ERROR: ${env} no está definida en el archivo .env`);
     process.exit(1);
   }
 });

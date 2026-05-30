@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { UserRepositoryInterface } from "../../interfaces/user/user.repository.interface";
 import { UserWithCustomRole } from "../../interfaces/user/user.repository.interface";
 import { Request, Response } from "express";
@@ -35,7 +36,7 @@ export class UserControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[UserController] Error en getById(${id})`, error);
+      logger.error({ err: error }, `[UserController] Error en getById(${id})`);
 
       return res.status(500).json({
         message: "Server error",
@@ -73,7 +74,7 @@ export class UserControllerService {
         total: response.length,
       });
     } catch (error: any) {
-      console.error(`[UserController] Error en getAll()`, error);
+      logger.error({ err: error }, `[UserController] Error en getAll()`);
 
       return res.status(500).json({
         message: "Server error",
@@ -110,7 +111,7 @@ export class UserControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[UserController] Error en create()`, error);
+      logger.error({ err: error }, `[UserController] Error en create()`);
 
       // Capturar si el email ya existe (Prisma P2002)
       if (error.code === "P2002") {
@@ -171,7 +172,7 @@ export class UserControllerService {
         },
       });
     } catch (error: any) {
-      console.error(`[UserController] Error en update(${id}):`, error);
+      logger.error({ err: error }, `[UserController] Error en update(${id}):`);
 
       if (error.code === "P2002") {
         return res
@@ -212,7 +213,7 @@ export class UserControllerService {
         }
       })
     } catch (error: any) {
-      console.error(`[UserController] Error en delete(${id}):`, error);
+      logger.error({ err: error }, `[UserController] Error en delete(${id}):`);
 
       if(error.code === 'P2025'){
         return res.status(404).json({

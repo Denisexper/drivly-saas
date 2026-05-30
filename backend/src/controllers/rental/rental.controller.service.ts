@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { Request, Response } from "express";
 import { RentalRepositoryInterface } from "../../interfaces/rental/rental.repository.interface";
 import { CreateRentalBody, ReturnRentalInput, UpdateRentalInput } from "../../types/rental/rental.types";
@@ -119,7 +120,7 @@ export class RentalControllerService {
         fuelIn: null,
       });
 
-      sendRentalConfirmEmail(rental.id).catch((err) => console.error("[Email] sendRentalConfirmEmail failed:", err));
+      sendRentalConfirmEmail(rental.id).catch((err) => logger.error({ err: err }, "[Email] sendRentalConfirmEmail failed:"));
       logAction({ req, action: "CREATE", entity: "Rental", entityId: rental.id, after: sanitizeRental(rental) });
 
       return res.status(201).json({ message: "Rental created successfully", data: rental });
@@ -152,7 +153,7 @@ export class RentalControllerService {
         };
         const completed = await this.repository.returnVehicle(id, returnData);
 
-        sendRentalReturnEmail(id).catch((err) => console.error("[Email] sendRentalReturnEmail failed:", err));
+        sendRentalReturnEmail(id).catch((err) => logger.error({ err: err }, "[Email] sendRentalReturnEmail failed:"));
         logAction({ req, action: "RETURN", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist), after: sanitizeRental(completed) });
 
         return res.status(200).json({ message: "Rental completed and vehicle returned successfully", data: completed });

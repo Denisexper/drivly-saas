@@ -1,3 +1,4 @@
+import logger from "../utils/logger";
 import { Request, Response, NextFunction } from "express";
 import { Role } from "@prisma/client";
 import prisma from "../dataBase/prisma";
@@ -36,7 +37,7 @@ export const checkPermissionAny = (...permissionKeys: PermissionKey[]) => {
       if (results.some(Boolean)) return next();
       return res.status(403).json({ message: "Forbidden: insufficient permissions" });
     } catch (error) {
-      console.error("[PermissionMiddleware] Error:", error);
+      logger.error({ err: error }, "[PermissionMiddleware] Error:");
       return res.status(500).json({ message: "Server error during permission check" });
     }
   };
@@ -86,7 +87,7 @@ export const checkPermission = (permissionKey: PermissionKey) => {
 
       next();
     } catch (error) {
-      console.error("[PermissionMiddleware] Error:", error);
+      logger.error({ err: error }, "[PermissionMiddleware] Error:");
       return res.status(500).json({ message: "Server error during permission check" });
     }
   };

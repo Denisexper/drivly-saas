@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { Request, Response } from "express"
 import { ReportRepositoryInterface } from "../../interfaces/report/report.repository.interface"
 import { generateCsv } from "../../utils/csv"
@@ -22,7 +23,7 @@ export class ReportControllerService {
       const data = await this.repository.getDailySummary(date, tenantId)
       return res.status(200).json({ message: "Daily summary retrieved", data })
     } catch (error: any) {
-      console.error("[ReportController] Error en getDailySummary():", error)
+      logger.error({ err: error }, "[ReportController] Error en getDailySummary():")
       return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
@@ -37,7 +38,7 @@ export class ReportControllerService {
       const data = await this.repository.getReceivables(tenantId)
       return res.status(200).json({ message: "Receivables retrieved", data })
     } catch (error: any) {
-      console.error("[ReportController] Error en getReceivables():", error)
+      logger.error({ err: error }, "[ReportController] Error en getReceivables():")
       return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
@@ -68,7 +69,7 @@ export class ReportControllerService {
 
       return res.status(200).json({ message: "Rentals report retrieved", data })
     } catch (error: any) {
-      console.error("[ReportController] Error en getRentalsReport():", error)
+      logger.error({ err: error }, "[ReportController] Error en getRentalsReport():")
       return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
@@ -90,7 +91,7 @@ export class ReportControllerService {
 
       return res.status(200).json({ message: "Payments report retrieved", data })
     } catch (error: any) {
-      console.error("[ReportController] Error en getPaymentsReport():", error)
+      logger.error({ err: error }, "[ReportController] Error en getPaymentsReport():")
       return res.status(500).json({ message: "Server error", error: error.message })
     }
   }
@@ -112,7 +113,7 @@ export class ReportControllerService {
 
       return res.status(200).json({ message: "Vehicles report retrieved", data })
     } catch (error: any) {
-      console.error("[ReportController] Error en getVehiclesReport():", error)
+      logger.error({ err: error }, "[ReportController] Error en getVehiclesReport():")
       return res.status(500).json({ message: "Server error", error: error.message })
     }
   }

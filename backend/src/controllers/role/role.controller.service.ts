@@ -1,3 +1,4 @@
+import logger from "../../utils/logger";
 import { Request, Response } from "express";
 import { CustomRoleRepositoryInterface } from "../../interfaces/role/role.repository.interface";
 import { CreateCustomRoleInput, UpdateCustomRoleInput } from "../../types/role/role.types";
@@ -19,7 +20,7 @@ export class CustomRoleControllerService {
         total: roles.length,
       });
     } catch (error: any) {
-      console.error("[CustomRoleController] Error en getAll()", error);
+      logger.error({ err: error }, "[CustomRoleController] Error en getAll()");
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -31,7 +32,7 @@ export class CustomRoleControllerService {
       if (!role) return res.status(404).json({ message: "Role not found" });
       return res.status(200).json({ message: "Role retrieved successfully", data: role });
     } catch (error: any) {
-      console.error(`[CustomRoleController] Error en getById(${id})`, error);
+      logger.error({ err: error }, `[CustomRoleController] Error en getById(${id})`);
       return res.status(500).json({ message: "Server error", error: error.message });
     }
   }
@@ -44,7 +45,7 @@ export class CustomRoleControllerService {
       const role = await this.repository.create(data);
       return res.status(201).json({ message: "Role created successfully", data: role });
     } catch (error: any) {
-      console.error("[CustomRoleController] Error en create()", error);
+      logger.error({ err: error }, "[CustomRoleController] Error en create()");
       if (error.message.includes("P2002")) {
         return res.status(400).json({ message: "A role with that name already exists" });
       }
@@ -62,7 +63,7 @@ export class CustomRoleControllerService {
       const role = await this.repository.update(id, data);
       return res.status(200).json({ message: "Role updated successfully", data: role });
     } catch (error: any) {
-      console.error(`[CustomRoleController] Error en update(${id})`, error);
+      logger.error({ err: error }, `[CustomRoleController] Error en update(${id})`);
       if (error.message.includes("P2002")) {
         return res.status(400).json({ message: "A role with that name already exists" });
       }
@@ -79,7 +80,7 @@ export class CustomRoleControllerService {
       const role = await this.repository.delete(id);
       return res.status(200).json({ message: "Role deleted successfully", data: role });
     } catch (error: any) {
-      console.error(`[CustomRoleController] Error en delete(${id})`, error);
+      logger.error({ err: error }, `[CustomRoleController] Error en delete(${id})`);
       if (error.message.includes("P2025")) {
         return res.status(404).json({ message: "Role not found" });
       }
