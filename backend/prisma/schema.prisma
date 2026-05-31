@@ -75,6 +75,8 @@ model Vehicle {
   rentals      Rental[]
 
   @@unique([tenantId, plate])
+  @@index([tenantId])
+  @@index([status])
 }
 
 // ── CLIENT ─────
@@ -99,6 +101,7 @@ model Client {
   rentals     Rental[]
 
   @@unique([tenantId, idNumber])
+  @@index([tenantId])
 }
 
 // ── RENTAL ────
@@ -133,6 +136,10 @@ model Rental {
   user          User         @relation(fields: [userId], references: [id])
   payments      Payment[]
   photos        RentalPhoto[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 // ── RENTAL PHOTO ─────
@@ -212,6 +219,8 @@ model Payment {
   createdAt DateTime      @default(now())
 
   rental    Rental        @relation(fields: [rentalId], references: [id])
+
+  @@index([rentalId])
 }
 
 // ── AUDIT LOG ────────────────────────────────────────────────────────────────
