@@ -1,0 +1,10 @@
+process.env.DATABASE_URL = "postgresql://drivly_test:drivly_test@localhost:5433/drivly_test?schema=public";
+process.env.JWT_SECRET = "test-secret-integration";
+process.env.JWT_EXPIRES_IN = "1d";
+process.env.PORT = "4001";
+process.env.CLOUDINARY_CLOUD_NAME = "test";
+process.env.CLOUDINARY_API_KEY = "test";
+process.env.CLOUDINARY_API_SECRET = "test";
+process.env.RESEND_API_KEY = "re_test_dummy";
+process.env.EMAIL_FROM = "test@test.com";
+process.env.FRONTEND_URL = "http://localhost:3000";

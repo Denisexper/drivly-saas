@@ -7,6 +7,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:integration": "DATABASE_URL=postgresql://drivly_test:drivly_test@localhost:5433/drivly_test?schema=public prisma migrate deploy && jest --config jest.integration.config.ts --runInBand",
+    "docker:test:up": "docker compose -f ../docker-compose.test.yml up -d",
+    "docker:test:down": "docker compose -f ../docker-compose.test.yml down",
     "dev": "tsx watch src/server.ts",
     "start": "nodemon src/server.ts",
     "seed": "tsx prisma/seed.ts"
@@ -21,6 +24,8 @@
   "devDependencies": {
     "@jest/globals": "^30.4.1",
     "@types/bcrypt": "^6.0.0",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.0",
     "@types/express": "^5.0.6",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.10",
