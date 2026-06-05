@@ -12,9 +12,9 @@ export class ClientRepository implements ClientRepositoryInterface {
     }
     async getById(id: string): Promise<Client | null> {
         try {
-            
-            const response = await this.prisma.client.findUnique({
-                where: { id }
+
+            const response = await this.prisma.client.findFirst({
+                where: { id, deletedAt: null }
             })
 
             return response
@@ -26,7 +26,7 @@ export class ClientRepository implements ClientRepositoryInterface {
     async getAll(tenantId?: string): Promise<Client[]> {
         try {
             const response = await this.prisma.client.findMany({
-                where: tenantId ? { tenantId } : undefined,
+                where: tenantId ? { tenantId, deletedAt: null } : { deletedAt: null },
                 orderBy: { createdAt: "desc" },
             })
             return response
@@ -62,16 +62,10 @@ export class ClientRepository implements ClientRepositoryInterface {
         }
     }
     async delete(id: string): Promise<Client> {
-        try {
-            
-            const response = await this.prisma.client.delete({
-                where: { id }
-            })
-
-            return response
-            
-        } catch (error) {
-            throw new Error (`${error}`)
-        }
+        const response = await this.prisma.client.update({
+            where: { id, deletedAt: null },
+            data: { deletedAt: new Date() }
+        })
+        return response
     }
 }

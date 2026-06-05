@@ -14,8 +14,8 @@ export class VehicleRepository implements VehicleRepositoryInterface {
 
   async getById(id: string): Promise<Vehicle | null> {
     try {
-      const response = await this.prisma.vehicle.findUnique({
-        where: { id },
+      const response = await this.prisma.vehicle.findFirst({
+        where: { id, deletedAt: null },
       });
 
       return response;
@@ -27,7 +27,7 @@ export class VehicleRepository implements VehicleRepositoryInterface {
   async getAll(tenantId?: string): Promise<Vehicle[]> {
     try {
       const response = await this.prisma.vehicle.findMany({
-        where: tenantId ? { tenantId } : undefined,
+        where: tenantId ? { tenantId, deletedAt: null } : { deletedAt: null },
         orderBy: { createdAt: "desc" },
       });
       return response;
@@ -59,14 +59,10 @@ export class VehicleRepository implements VehicleRepositoryInterface {
     }
   }
   async delete(id: string): Promise<Vehicle> {
-    try {
-      const response = await this.prisma.vehicle.delete({
-        where: { id },
-      });
-
-      return response;
-    } catch (error) {
-      throw new Error(`${error}`);
-    }
+    const response = await this.prisma.vehicle.update({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date() },
+    });
+    return response;
   }
 }

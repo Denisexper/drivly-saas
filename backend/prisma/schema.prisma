@@ -70,6 +70,7 @@ model Vehicle {
   notes        String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
 
   tenant       Tenant        @relation(fields: [tenantId], references: [id])
   rentals      Rental[]
@@ -96,6 +97,7 @@ model Client {
   notes       String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   tenant      Tenant    @relation(fields: [tenantId], references: [id])
   rentals     Rental[]
