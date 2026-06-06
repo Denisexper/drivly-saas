@@ -4,8 +4,12 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { AppRoutes } from "./routes/app.routes";
 import { ErrorMiddleware } from "./middlewares/error.middleware";
+import { swaggerSpec, swaggerUi } from "./docs/swagger";
 
 const app = express();
+
+// Docs antes de helmet para que no bloquee los assets inline de Swagger UI
+app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
