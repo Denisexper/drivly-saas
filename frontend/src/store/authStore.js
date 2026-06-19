@@ -11,7 +11,6 @@ export const useAuthStore = create(
       lastSlug: null,
 
       login: (token, user, slug) => {
-        localStorage.setItem("token", token);
         if (slug) localStorage.setItem("lastSlug", slug);
         set({ token, user, lastSlug: slug ?? null });
       },
@@ -24,14 +23,12 @@ export const useAuthStore = create(
             headers: { Authorization: `Bearer ${token}` },
           }).catch(() => {});
         }
-        localStorage.removeItem("token");
         usePermissionsStore.getState().reset();
         set({ token: null, user: null, savedSASession: null });
       },
 
       impersonate: (token, user) => {
         const { token: currentToken, user: currentUser } = get();
-        localStorage.setItem("token", token);
         usePermissionsStore.getState().reset();
         set({
           token,
@@ -43,7 +40,6 @@ export const useAuthStore = create(
       exitImpersonation: () => {
         const { savedSASession } = get();
         if (!savedSASession) return;
-        localStorage.setItem("token", savedSASession.token);
         usePermissionsStore.getState().reset();
         set({ token: savedSASession.token, user: savedSASession.user, savedSASession: null });
       },
