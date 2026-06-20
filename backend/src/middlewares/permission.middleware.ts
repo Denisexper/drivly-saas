@@ -4,24 +4,26 @@ import { Role } from "@prisma/client";
 import prisma from "../dataBase/prisma";
 import { PermissionKey } from "../permissions/manifest";
 
-async function userHasPermission(userId: string, tenantId: string | null, permissionKey: PermissionKey): Promise<boolean> {
+async function userHasAnyPermission(userId: string, tenantId: string | null, permissionKeys: PermissionKey[]): Promise<boolean> {
   const dbUser = await prisma.user.findUnique({ where: { id: userId } });
   if (!dbUser || !dbUser.active) return false;
 
-  const perm = await prisma.permission.findUnique({ where: { key: permissionKey } });
-  if (!perm) return false;
+  const perms = await prisma.permission.findMany({ where: { key: { in: permissionKeys } } });
+  if (perms.length === 0) return false;
+
+  const permIds = perms.map((p) => p.id);
 
   if (dbUser.customRoleId) {
-    const has = await prisma.customRolePermission.findUnique({
-      where: { customRoleId_permissionId: { customRoleId: dbUser.customRoleId, permissionId: perm.id } },
+    const count = await prisma.customRolePermission.count({
+      where: { customRoleId: dbUser.customRoleId, permissionId: { in: permIds } },
     });
-    return !!has;
+    return count > 0;
   } else {
     if (!tenantId) return false;
-    const has = await prisma.rolePermission.findUnique({
-      where: { tenantId_role_permissionId: { tenantId, role: dbUser.role as Role, permissionId: perm.id } },
+    const count = await prisma.rolePermission.count({
+      where: { tenantId, role: dbUser.role as Role, permissionId: { in: permIds } },
     });
-    return !!has;
+    return count > 0;
   }
 }
 
@@ -31,10 +33,8 @@ export const checkPermissionAny = (...permissionKeys: PermissionKey[]) => {
     if (user.role === "SuperAdmin") return next();
 
     try {
-      const results = await Promise.all(
-        permissionKeys.map((key) => userHasPermission(user.id, user.tenantId ?? null, key))
-      );
-      if (results.some(Boolean)) return next();
+      const has = await userHasAnyPermission(user.id, user.tenantId ?? null, permissionKeys);
+      if (has) return next();
       return res.status(403).json({ message: "Forbidden: insufficient permissions" });
     } catch (error) {
       logger.error({ err: error }, "[PermissionMiddleware] Error:");
@@ -49,8 +49,8 @@ export const checkPermission = (permissionKey: PermissionKey) => {
     if (user.role === "SuperAdmin") return next();
 
     try {
-      const hasPermission = await userHasPermission(user.id, user.tenantId ?? null, permissionKey);
-      if (!hasPermission) return res.status(403).json({ message: "Forbidden: insufficient permissions" });
+      const has = await userHasAnyPermission(user.id, user.tenantId ?? null, [permissionKey]);
+      if (!has) return res.status(403).json({ message: "Forbidden: insufficient permissions" });
       next();
     } catch (error) {
       logger.error({ err: error }, "[PermissionMiddleware] Error:");
