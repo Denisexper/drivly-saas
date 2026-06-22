@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { AuditControllerService } from "../../controllers/audit/audit.controller.service";
 import { authMiddleware } from "../../middlewares/auth.moddleware";
 import { tenantMiddleware } from "../../middlewares/tenant.middleware";
@@ -16,7 +16,7 @@ export class AuditRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("audit:read"),
-      (req: Request, res: Response) => this.controller.getAll(req, res),
+      (req: Request, res: Response, next: NextFunction) => this.controller.getAll(req, res, next),
     );
 
     return this.router;

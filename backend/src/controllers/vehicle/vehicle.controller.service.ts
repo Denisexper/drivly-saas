@@ -1,5 +1,5 @@
 import logger from "../../utils/logger";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { VehicleRepositoryInterface } from "../../interfaces/vehicle/vehicle.repository.interface";
 import {
   CreateVehicleInput,
@@ -14,7 +14,7 @@ export class VehicleControllerService {
     this.repository = repository;
   }
 
-  async getById(req: Request<{ id: string }>, res: Response) {
+  async getById(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
 
     try {
@@ -48,22 +48,14 @@ export class VehicleControllerService {
       });
     } catch (error: any) {
       logger.error({ err: error }, `[VehicleController] Error in getById(${id})`);
-
-      //validamos por si cambia en un pequeno lapso es objeto(prisma error code)
       if (error.code === "P2025") {
-        return res.status(404).json({
-          message: "Vehicle not found2",
-        });
+        return res.status(404).json({ message: "Vehicle not found" });
       }
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     const isSuperAdmin = req.user!.role === "SuperAdmin";
     const tenantId = (isSuperAdmin && !req.user!.isImpersonating)
       ? (req.query.tenantId as string | undefined)
@@ -98,17 +90,13 @@ export class VehicleControllerService {
         data: cleanData,
         total: cleanData.length,
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[VehicleController] Error en getAll()`);
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     const data: CreateVehicleInput = req.body;
 
     try {
@@ -131,24 +119,17 @@ export class VehicleControllerService {
       });
     } catch (error: any) {
       logger.error({ err: error }, `[VehicleController] Error en create()`);
-
-      //validamos placa porque es unique en el schema
       if (error.code === "P2002") {
-        return res.status(400).json({
-          message: "Plate already exist",
-        });
+        return res.status(400).json({ message: "Plate already exist" });
       }
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
   async update(
     req: Request<{ id: string }, {}, {}, { tenantId: string }>,
     res: Response,
+    next: NextFunction,
   ) {
     const { id } = req.params;
 
@@ -190,21 +171,14 @@ export class VehicleControllerService {
       });
     } catch (error: any) {
       logger.error({ err: error }, `[VehicleController] Error en update(${id}):`);
-
       if (error.code === "P2025") {
-        return res.status(404).json({
-          message: "Vehicle not found2",
-        });
+        return res.status(404).json({ message: "Vehicle not found" });
       }
-
-      return res.status(500).json({
-        message: "Server Error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async delete(req: Request<{id: string}, {}, {}, {tenantId: string}>, res: Response){
+  async delete(req: Request<{id: string}, {}, {}, {tenantId: string}>, res: Response, next: NextFunction){
 
     const { id } = req.params;
 
@@ -236,18 +210,11 @@ export class VehicleControllerService {
         }
       })
     } catch (error: any) {
-      logger.error({ err: error }, `[VehicleController] Error in delete(${id})`)
-
-      if(error.code === 'P2025'){
-        return res.status(404).json({
-          message: "Vehicle not found"
-        })
+      logger.error({ err: error }, `[VehicleController] Error in delete(${id})`);
+      if (error.code === "P2025") {
+        return res.status(404).json({ message: "Vehicle not found" });
       }
-
-      return res.status(500).json({
-        message: "Server Error",
-        error: error.message
-      })
+      return next(error);
     }
   }
 }

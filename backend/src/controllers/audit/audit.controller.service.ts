@@ -1,12 +1,12 @@
 import logger from "../../utils/logger";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { AuditRepositoryInterface } from "../../interfaces/audit/audit.repository.interface";
 import { GetAuditLogsFilter } from "../../types/audit/audit.types";
 
 export class AuditControllerService {
   constructor(private readonly repository: AuditRepositoryInterface) {}
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     const isSuperAdmin = req.user!.role === "SuperAdmin";
     const tenantId = isSuperAdmin
       ? (req.query.tenantId as string | undefined)
@@ -37,9 +37,9 @@ export class AuditControllerService {
         limit,
         totalPages: Math.ceil(total / limit),
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, "[AuditController] Error en getAll():");
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 }

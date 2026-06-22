@@ -1,5 +1,5 @@
 import logger from "../../utils/logger";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { TenantRepositoryInterface } from "../../interfaces/tenant/tenant.repository.interface";
 import { UpdateSettingsInput } from "../../types/settings/settings.types";
 
@@ -10,7 +10,7 @@ export class SettingsControllerService {
     this.repository = repository;
   }
 
-  async getMySettings(req: Request, res: Response) {
+  async getMySettings(req: Request, res: Response, next: NextFunction) {
     const tenantId = req.user!.tenantId;
 
     try {
@@ -28,11 +28,11 @@ export class SettingsControllerService {
       });
     } catch (error: any) {
       logger.error({ err: error }, "[SettingsController] Error en getMySettings():");
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async updateMySettings(req: Request, res: Response) {
+  async updateMySettings(req: Request, res: Response, next: NextFunction) {
     const tenantId = req.user!.tenantId;
     const data: UpdateSettingsInput = req.body;
 
@@ -47,7 +47,7 @@ export class SettingsControllerService {
       });
     } catch (error: any) {
       logger.error({ err: error }, "[SettingsController] Error en updateMySettings():");
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 }

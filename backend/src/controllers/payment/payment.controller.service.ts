@@ -1,6 +1,6 @@
 import logger from "../../utils/logger";
 import { PaymentRepositoryInterface } from "../../interfaces/payment/payment.repository.interface";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { CreatePaymentInput } from "../../types/payment/payment.types";
 import { generatePaymentReceiptPDF } from "../../utils/pdf";
 import { sendPaymentReceiptEmail } from "../../email/email.service";
@@ -9,7 +9,7 @@ import { logAction } from "../../utils/audit";
 export class PaymentControllerService {
   constructor(private readonly repository: PaymentRepositoryInterface) {}
 
-  async getById(req: Request<{ id: string }>, res: Response) {
+  async getById(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const response = await this.repository.getById(id);
@@ -18,13 +18,13 @@ export class PaymentControllerService {
         message: "Payment retrived successfully",
         data: { ...response, amount: response.amount.toString() },
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[Payment controller] Error en getById(${id}):`);
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     const isSuperAdmin = req.user!.role === "SuperAdmin";
     const tenantId = (isSuperAdmin && !req.user!.isImpersonating)
       ? (req.query.tenantId as string | undefined)
@@ -35,13 +35,13 @@ export class PaymentControllerService {
         message: response.length > 0 ? "Payments retrived successfully" : "Payments list empty",
         data: response,
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, "[PaymentController] Error en getAll():");
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     const data: CreatePaymentInput = req.body;
     try {
       const response = await this.repository.create(data);
@@ -61,16 +61,15 @@ export class PaymentControllerService {
         },
       });
     } catch (error: any) {
-      // Validation error from repository (exceeds rental total)
       if (error.message?.includes("El monto excede") || error.message?.includes("Rental not found")) {
-        return res.status(422).json({ message: error.message });
+        return next({ status: 422, message: error.message });
       }
       logger.error({ err: error }, "[PaymentController] Error en create():");
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async delete(req: Request<{ id: string }>, res: Response) {
+  async delete(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const isExist = await this.repository.getById(id);
@@ -90,31 +89,31 @@ export class PaymentControllerService {
     } catch (error: any) {
       if (error.code === "P2025") return res.status(404).json({ message: "Payment not found" });
       logger.error({ err: error }, `[PaymentController] Error en delete(${id}):`);
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async getPdfReceipt(req: Request<{ id: string }>, res: Response) {
+  async getPdfReceipt(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const payment = await this.repository.getByIdWithDetails(id);
       if (!payment) return res.status(404).json({ message: "Payment not found" });
       generatePaymentReceiptPDF(payment, res);
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[PaymentController] Error en getPdfReceipt(${id}):`);
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async getPaymentSummary(req: Request<{ id: string }>, res: Response) {
+  async getPaymentSummary(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const summary = await this.repository.getPaymentSummary(id);
       return res.status(200).json({ message: "Payment summary retrieved", data: summary });
     } catch (error: any) {
-      if (error.message === "Rental not found") return res.status(404).json({ message: "Rental not found" });
+      if (error.message === "Rental not found") return next({ status: 404, message: "Rental not found" });
       logger.error({ err: error }, `[PaymentController] Error en getPaymentSummary(${id}):`);
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 }

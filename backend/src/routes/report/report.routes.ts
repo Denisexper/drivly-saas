@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 import { ReportControllerService } from "../../controllers/report/report.controller.service"
 import { authMiddleware } from "../../middlewares/auth.moddleware"
 import { tenantMiddleware } from "../../middlewares/tenant.middleware"
@@ -16,7 +16,7 @@ export class ReportRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("reports:read"),
-      (req: Request, res: Response) => this.controller.getDailySummary(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getDailySummary(req, res, next)
     )
 
     this.router.get(
@@ -24,7 +24,7 @@ export class ReportRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("reports:read"),
-      (req: Request, res: Response) => this.controller.getReceivables(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getReceivables(req, res, next)
     )
 
     this.router.get(
@@ -32,7 +32,7 @@ export class ReportRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("reports:read"),
-      (req: Request, res: Response) => this.controller.getRentalsReport(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getRentalsReport(req, res, next)
     )
 
     this.router.get(
@@ -40,7 +40,7 @@ export class ReportRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("reports:read"),
-      (req: Request, res: Response) => this.controller.getPaymentsReport(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getPaymentsReport(req, res, next)
     )
 
     this.router.get(
@@ -48,7 +48,7 @@ export class ReportRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("reports:read"),
-      (req: Request, res: Response) => this.controller.getVehiclesReport(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getVehiclesReport(req, res, next)
     )
 
     return this.router

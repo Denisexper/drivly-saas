@@ -1,5 +1,5 @@
 import logger from "../../utils/logger";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { TenantRepositoryInterface } from "../../interfaces/tenant/tenant.repository.interface";
 import { seedTenantDefaultPermissions } from "../../permissions/sync";
 import {
@@ -17,7 +17,7 @@ export class TenantControllerService {
     this.repository = repository;
   }
 
-  async getPublicBySlug(req: Request<{ slug: string }>, res: Response) {
+  async getPublicBySlug(req: Request<{ slug: string }>, res: Response, next: NextFunction) {
     const { slug } = req.params;
     try {
       const tenant = await this.repository.getBySlug(slug);
@@ -25,12 +25,12 @@ export class TenantControllerService {
       return res.status(200).json({
         data: { name: tenant.name, slug: tenant.slug, active: tenant.active },
       });
-    } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+    } catch (error) {
+      return next(error);
     }
   }
 
-  async getById(req: Request<{ id: string }>, res: Response) {
+  async getById(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
 
     try {
@@ -52,18 +52,13 @@ export class TenantControllerService {
           active: response.active,
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[TenantController] Error en getById(${id}):`);
-
-      //general erros
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const response = await this.repository.getAll();
 
@@ -83,26 +78,23 @@ export class TenantControllerService {
             : "Tenant list empty",
         data: cleanData,
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[TenantController] Error en getAll():`);
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async getStats(req: Request, res: Response) {
+  async getStats(req: Request, res: Response, next: NextFunction) {
     try {
       const stats = await this.repository.getStats();
       return res.status(200).json({ message: "Stats retrieved successfully", data: stats });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, "[TenantController] Error en getStats():");
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     const { name, plan, adminName, adminEmail, adminPassword }: CreateTenantWithAdminInput = req.body;
 
     if (!name || !adminName || !adminEmail || !adminPassword) {
@@ -149,13 +141,13 @@ export class TenantControllerService {
           admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role },
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[TenantController] Error en create():`);
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async update(req: Request<{ id: string }>, res: Response) {
+  async update(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
 
     const data: UpdateTenantInput = req.body;
@@ -199,18 +191,13 @@ export class TenantControllerService {
     } catch (error: any) {
       logger.error({ err: error }, `[TenantController] Error en update(${id}):`);
       if (error.code === "P2025") {
-        // Código de Prisma para "Record not found"
         return res.status(404).json({ message: "Tenant not found" });
       }
-
-      res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async delete(req: Request<{ id: string }>, res: Response) {
+  async delete(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
 
     try {
@@ -234,17 +221,10 @@ export class TenantControllerService {
       });
     } catch (error: any) {
       logger.error({ err: error }, `[TenantController] Error en delete(${id}):`);
-
       if (error.code === "P2025") {
-        return res.status(404).json({
-          message: "Tenant not found2",
-        });
+        return res.status(404).json({ message: "Tenant not found" });
       }
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 }

@@ -31,7 +31,7 @@ export class ClienteControllerService {
       next(error)
     }
   }
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     const isSuperAdmin = req.user!.role === "SuperAdmin";
     const tenantId = (isSuperAdmin && !req.user!.isImpersonating)
       ? (req.query.tenantId as string | undefined)
@@ -52,15 +52,12 @@ export class ClienteControllerService {
         data: response,
         total: response.length,
       });
-    } catch (error: any) {
-      res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+    } catch (error) {
+      next(error);
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     const tenantId = req.user!.tenantId;
     const data: CreateClientInput = { ...req.body, tenantId };
 
@@ -80,15 +77,12 @@ export class ClienteControllerService {
           updatedAt: response.updatedAt,
         },
       });
-    } catch (error: any) {
-      res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+    } catch (error) {
+      next(error);
     }
   }
 
-  async update(req: Request<{ id: string }>, res: Response) {
+  async update(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
 
     const data: UpdateClientInput = req.body;
@@ -105,17 +99,13 @@ export class ClienteControllerService {
       });
     } catch (error: any) {
       if (error.code === "P2025") {
-        // Código de Prisma para "Record not found"
         return res.status(404).json({ message: "Client not found" });
       }
-      res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      next(error);
     }
   }
 
-  async delete(req: Request<{ id: string }>, res: Response) {
+  async delete(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
 
     try {
@@ -131,17 +121,10 @@ export class ClienteControllerService {
         },
       });
     } catch (error: any) {
-      //excepcion si el id no existe
       if (error.code === "P2025") {
-        return res.status(404).json({
-          message: "Client not found",
-        });
+        return res.status(404).json({ message: "Client not found" });
       }
-
-      res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      next(error);
     }
   }
 }

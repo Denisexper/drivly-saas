@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { UserControllerService } from "../../controllers/user/user.controller.service";
 import { authMiddleware } from "../../middlewares/auth.moddleware";
 import { tenantMiddleware } from "../../middlewares/tenant.middleware";
@@ -21,14 +21,14 @@ export class UserRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("users:read"),
-      (req: Request, res: Response) => this.controller.getAll(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getAll(req, res, next)
     );
     this.router.get(
       "/:id",
       authMiddleware,
       tenantMiddleware,
       checkPermission("users:read"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.getById(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.getById(req, res, next)
     );
     this.router.post(
       "/",
@@ -36,7 +36,7 @@ export class UserRoutes {
       tenantMiddleware,
       checkPermission("users:create"),
       validate(createUserSchema),
-      (req: Request, res: Response) => this.controller.create(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.create(req, res, next)
     );
     this.router.put(
       "/:id",
@@ -44,14 +44,14 @@ export class UserRoutes {
       tenantMiddleware,
       checkPermission("users:update"),
       validate(updateUserSchema),
-      (req: Request<{ id: string }>, res: Response) => this.controller.update(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.update(req, res, next)
     );
     this.router.delete(
       "/:id",
       authMiddleware,
       tenantMiddleware,
       checkPermission("users:delete"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.delete(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.delete(req, res, next)
     );
 
     return this.router;

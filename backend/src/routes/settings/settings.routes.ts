@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { SettingsControllerService } from "../../controllers/settings/settings.controller.service";
 import { authMiddleware } from "../../middlewares/auth.moddleware";
 import { authorizeRoles } from "../../middlewares/role.moddleware";
@@ -19,7 +19,7 @@ export class SettingsRoutes {
       "/",
       authMiddleware,
       authorizeRoles("Admin"),
-      (req: Request, res: Response) => this.controller.getMySettings(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getMySettings(req, res, next)
     );
 
     this.router.patch(
@@ -27,7 +27,7 @@ export class SettingsRoutes {
       authMiddleware,
       authorizeRoles("Admin"),
       validate(updateSettingsSchema),
-      (req: Request, res: Response) => this.controller.updateMySettings(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.updateMySettings(req, res, next)
     );
 
     return this.router;

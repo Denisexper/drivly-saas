@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { PermissionControllerService } from "../../controllers/permission/permission.controller.service";
 import { authMiddleware } from "../../middlewares/auth.moddleware";
 import { authorizeRoles } from "../../middlewares/role.moddleware";
@@ -13,63 +13,59 @@ export class PermissionRoutes {
   }
 
   initRoutes() {
-    // Permisos del usuario autenticado
     this.router.get(
       "/me",
       authMiddleware,
-      (req: Request, res: Response) => this.controller.getMyPermissions(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getMyPermissions(req, res, next)
     );
 
-    // Catálogo completo de permisos
     this.router.get(
       "/",
       authMiddleware,
       authorizeRoles("Admin", "SuperAdmin"),
-      (req: Request, res: Response) => this.controller.getAll(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getAll(req, res, next)
     );
 
-    // ── Base roles ────────────────────────────────────────────────────
     this.router.get(
       "/base-roles/:role",
       authMiddleware,
       authorizeRoles("Admin", "SuperAdmin"),
-      (req: Request<{ role: string }>, res: Response) => this.controller.getBaseRolePermissions(req, res)
+      (req: Request<{ role: string }>, res: Response, next: NextFunction) => this.controller.getBaseRolePermissions(req, res, next)
     );
 
     this.router.post(
       "/base-roles/:role",
       authMiddleware,
       authorizeRoles("Admin", "SuperAdmin"),
-      (req: Request<{ role: string }>, res: Response) => this.controller.assignToBaseRole(req, res)
+      (req: Request<{ role: string }>, res: Response, next: NextFunction) => this.controller.assignToBaseRole(req, res, next)
     );
 
     this.router.delete(
       "/base-roles/:role/:key",
       authMiddleware,
       authorizeRoles("Admin", "SuperAdmin"),
-      (req: Request<{ role: string; key: string }>, res: Response) => this.controller.revokeFromBaseRole(req, res)
+      (req: Request<{ role: string; key: string }>, res: Response, next: NextFunction) => this.controller.revokeFromBaseRole(req, res, next)
     );
 
-    // ── Custom roles ──────────────────────────────────────────────────
     this.router.get(
       "/custom-roles/:id",
       authMiddleware,
       authorizeRoles("Admin", "SuperAdmin"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.getCustomRolePermissions(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.getCustomRolePermissions(req, res, next)
     );
 
     this.router.post(
       "/custom-roles/:id",
       authMiddleware,
       authorizeRoles("Admin", "SuperAdmin"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.assignToCustomRole(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.assignToCustomRole(req, res, next)
     );
 
     this.router.delete(
       "/custom-roles/:id/:key",
       authMiddleware,
       authorizeRoles("Admin", "SuperAdmin"),
-      (req: Request<{ id: string; key: string }>, res: Response) => this.controller.revokeFromCustomRole(req, res)
+      (req: Request<{ id: string; key: string }>, res: Response, next: NextFunction) => this.controller.revokeFromCustomRole(req, res, next)
     );
 
     return this.router;

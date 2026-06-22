@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { VehicleControllerService } from "../../controllers/vehicle/vehicle.controller.service";
 import { authMiddleware } from "../../middlewares/auth.moddleware";
 import { tenantMiddleware } from "../../middlewares/tenant.middleware";
@@ -21,14 +21,14 @@ export class VehicleRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("vehicles:read"),
-      (req: Request<{}, {}, {}, { tenantId: string }>, res: Response) => this.controller.getAll(req, res)
+      (req: Request<{}, {}, {}, { tenantId: string }>, res: Response, next: NextFunction) => this.controller.getAll(req, res, next)
     );
     this.router.get(
       "/:id",
       authMiddleware,
       tenantMiddleware,
       checkPermission("vehicles:read"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.getById(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.getById(req, res, next)
     );
     this.router.post(
       "/",
@@ -36,7 +36,7 @@ export class VehicleRoutes {
       tenantMiddleware,
       checkPermission("vehicles:create"),
       validate(createVehicleSchema),
-      (req: Request, res: Response) => this.controller.create(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.create(req, res, next)
     );
     this.router.put(
       "/:id",
@@ -44,14 +44,14 @@ export class VehicleRoutes {
       tenantMiddleware,
       checkPermission("vehicles:update"),
       validate(updateVehicleSchema),
-      (req: Request<{ id: string }, {}, {}, { tenantId: string }>, res: Response) => this.controller.update(req, res)
+      (req: Request<{ id: string }, {}, {}, { tenantId: string }>, res: Response, next: NextFunction) => this.controller.update(req, res, next)
     );
     this.router.delete(
       "/:id",
       authMiddleware,
       tenantMiddleware,
       checkPermission("vehicles:delete"),
-      (req: Request<{ id: string }, {}, {}, { tenantId: string }>, res: Response) => this.controller.delete(req, res)
+      (req: Request<{ id: string }, {}, {}, { tenantId: string }>, res: Response, next: NextFunction) => this.controller.delete(req, res, next)
     );
 
     return this.router;

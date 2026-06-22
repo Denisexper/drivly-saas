@@ -1,5 +1,5 @@
 import logger from "../../utils/logger";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { RentalRepositoryInterface } from "../../interfaces/rental/rental.repository.interface";
 import { CreateRentalBody, ReturnRentalInput, UpdateRentalInput } from "../../types/rental/rental.types";
 import { sendRentalConfirmEmail, sendRentalReturnEmail } from "../../email/email.service";
@@ -24,18 +24,18 @@ function sanitizeRental(r: Rental) {
 export class RentalControllerService {
   constructor(private readonly repository: RentalRepositoryInterface) {}
 
-  async getById(req: Request<{ id: string }>, res: Response) {
+  async getById(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const rental = await this.repository.getById(id);
       if (!rental) return res.status(404).json({ message: "Rental not found" });
       return res.status(200).json({ message: "Rental retrieved successfully", data: rental });
-    } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+    } catch (error) {
+      return next(error);
     }
   }
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     const isSuperAdmin = req.user!.role === "SuperAdmin";
     const tenantId = (isSuperAdmin && !req.user!.isImpersonating)
       ? (req.query.tenantId as string | undefined)
@@ -49,12 +49,12 @@ export class RentalControllerService {
         message: rentals.length > 0 ? "Rentals retrieved successfully" : "No rentals found",
         data: rentals,
       });
-    } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+    } catch (error) {
+      return next(error);
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     const body: CreateRentalBody = req.body;
     const { vehicleId, clientId, startDate, endDate } = body;
 
@@ -124,13 +124,12 @@ export class RentalControllerService {
       logAction({ req, action: "CREATE", entity: "Rental", entityId: rental.id, after: sanitizeRental(rental) });
 
       return res.status(201).json({ message: "Rental created successfully", data: rental });
-    } catch (error: any) {
-      if (error.status) return res.status(error.status).json({ message: error.message });
-      return res.status(500).json({ message: "Server error", error: error.message });
+    } catch (error) {
+      return next(error);
     }
   }
 
-  async update(req: Request<{ id: string }>, res: Response) {
+  async update(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     const data: UpdateRentalInput = req.body;
 
@@ -169,37 +168,33 @@ export class RentalControllerService {
       const updated = await this.repository.update(id, data);
       logAction({ req, action: "UPDATE", entity: "Rental", entityId: id, before: sanitizeRental(rentalExist), after: sanitizeRental(updated) });
       return res.status(200).json({ message: "Rental updated successfully", data: updated });
-    } catch (error: any) {
-      if (error.status) return res.status(error.status).json({ message: error.message });
-      if (error.code === "P2025") return res.status(404).json({ message: "Rental not found" });
-      return res.status(500).json({ message: "Server error", error: error.message });
+    } catch (error) {
+      return next(error);
     }
   }
 
-  async forceDelete(req: Request<{ id: string }>, res: Response) {
+  async forceDelete(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const deleted = await this.repository.forceDelete(id);
       return res.status(200).json({ message: "Rental force deleted successfully", data: deleted });
-    } catch (error: any) {
-      if (error.status) return res.status(error.status).json({ message: error.message });
-      if (error.code === "P2025") return res.status(404).json({ message: "Rental not found" });
-      return res.status(500).json({ message: "Server error", error: error.message });
+    } catch (error) {
+      return next(error);
     }
   }
 
-  async getPdfContract(req: Request<{ id: string }>, res: Response) {
+  async getPdfContract(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const rental = await this.repository.getByIdWithDetails(id);
       if (!rental) return res.status(404).json({ message: "Rental not found" });
       generateRentalContractPDF(rental, res);
-    } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+    } catch (error) {
+      return next(error);
     }
   }
 
-  async delete(req: Request<{ id: string }>, res: Response) {
+  async delete(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const rentalExist = await this.repository.getById(id);
@@ -214,7 +209,7 @@ export class RentalControllerService {
       return res.status(200).json({ message: "Rental deleted successfully" });
     } catch (error: any) {
       if (error.code === "P2025") return res.status(404).json({ message: "Rental not found" });
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 }

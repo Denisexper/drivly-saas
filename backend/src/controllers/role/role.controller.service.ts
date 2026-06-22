@@ -1,5 +1,5 @@
 import logger from "../../utils/logger";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { CustomRoleRepositoryInterface } from "../../interfaces/role/role.repository.interface";
 import { CreateCustomRoleInput, UpdateCustomRoleInput } from "../../types/role/role.types";
 
@@ -10,7 +10,7 @@ export class CustomRoleControllerService {
     this.repository = repository;
   }
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     const tenantId = req.user!.tenantId!;
     try {
       const roles = await this.repository.getAll(tenantId);
@@ -19,25 +19,25 @@ export class CustomRoleControllerService {
         data: roles,
         total: roles.length,
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, "[CustomRoleController] Error en getAll()");
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async getById(req: Request<{ id: string }>, res: Response) {
+  async getById(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const role = await this.repository.getById(id);
       if (!role) return res.status(404).json({ message: "Role not found" });
       return res.status(200).json({ message: "Role retrieved successfully", data: role });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[CustomRoleController] Error en getById(${id})`);
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     const { name, description } = req.body;
     const tenantId = req.user!.tenantId!;
     try {
@@ -46,14 +46,14 @@ export class CustomRoleControllerService {
       return res.status(201).json({ message: "Role created successfully", data: role });
     } catch (error: any) {
       logger.error({ err: error }, "[CustomRoleController] Error en create()");
-      if (error.message.includes("P2002")) {
+      if (error.message?.includes("P2002")) {
         return res.status(400).json({ message: "A role with that name already exists" });
       }
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async update(req: Request<{ id: string }>, res: Response) {
+  async update(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     const data: UpdateCustomRoleInput = req.body;
     try {
@@ -64,14 +64,14 @@ export class CustomRoleControllerService {
       return res.status(200).json({ message: "Role updated successfully", data: role });
     } catch (error: any) {
       logger.error({ err: error }, `[CustomRoleController] Error en update(${id})`);
-      if (error.message.includes("P2002")) {
+      if (error.message?.includes("P2002")) {
         return res.status(400).json({ message: "A role with that name already exists" });
       }
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 
-  async delete(req: Request<{ id: string }>, res: Response) {
+  async delete(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const exists = await this.repository.getById(id);
@@ -81,10 +81,10 @@ export class CustomRoleControllerService {
       return res.status(200).json({ message: "Role deleted successfully", data: role });
     } catch (error: any) {
       logger.error({ err: error }, `[CustomRoleController] Error en delete(${id})`);
-      if (error.message.includes("P2025")) {
+      if (error.message?.includes("P2025")) {
         return res.status(404).json({ message: "Role not found" });
       }
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return next(error);
     }
   }
 }

@@ -1,7 +1,7 @@
 import logger from "../../utils/logger";
 import { UserRepositoryInterface } from "../../interfaces/user/user.repository.interface";
 import { UserWithCustomRole } from "../../interfaces/user/user.repository.interface";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { CreateUserInput, UpdateUserInput } from "../../types/user/user.types";
 import bcrypt from "bcrypt";
 import { logAction } from "../../utils/audit";
@@ -13,7 +13,7 @@ export class UserControllerService {
     this.repository = repository;
   }
 
-  async getById(req: Request<{ id: string }>, res: Response) {
+  async getById(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     try {
       const response = await this.repository.getById(id);
@@ -35,17 +35,13 @@ export class UserControllerService {
           active: response.active,
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[UserController] Error en getById(${id})`);
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     const isSuperAdmin = req.user!.role === "SuperAdmin";
     const tenantId = (isSuperAdmin && !req.user!.isImpersonating)
       ? (req.query.tenantId as string | undefined)
@@ -73,17 +69,13 @@ export class UserControllerService {
         data: cleanData,
         total: response.length,
       });
-    } catch (error: any) {
+    } catch (error) {
       logger.error({ err: error }, `[UserController] Error en getAll()`);
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     const data: CreateUserInput = req.body;
 
     try {
@@ -112,20 +104,14 @@ export class UserControllerService {
       });
     } catch (error: any) {
       logger.error({ err: error }, `[UserController] Error en create()`);
-
-      // Capturar si el email ya existe (Prisma P2002)
       if (error.code === "P2002") {
         return res.status(400).json({ message: "Email already exists" });
       }
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async update(req: Request<{ id: string }>, res: Response) {
+  async update(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
     const data: UpdateUserInput = req.body;
 
@@ -173,21 +159,14 @@ export class UserControllerService {
       });
     } catch (error: any) {
       logger.error({ err: error }, `[UserController] Error en update(${id}):`);
-
       if (error.code === "P2002") {
-        return res
-          .status(400)
-          .json({ message: "Email already in use by another user" });
+        return res.status(400).json({ message: "Email already in use by another user" });
       }
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message,
-      });
+      return next(error);
     }
   }
 
-  async delete(req: Request<{id: string}>, res: Response) {
+  async delete(req: Request<{id: string}>, res: Response, next: NextFunction) {
 
     const { id } = req.params;
 
@@ -214,17 +193,10 @@ export class UserControllerService {
       })
     } catch (error: any) {
       logger.error({ err: error }, `[UserController] Error en delete(${id}):`);
-
-      if(error.code === 'P2025'){
-        return res.status(404).json({
-          message: "User not found"
-        })
+      if (error.code === "P2025") {
+        return res.status(404).json({ message: "User not found" });
       }
-
-      return res.status(500).json({
-        message: "Server error",
-        error: error.message
-      })
+      return next(error);
     }
   }
 }

@@ -1,5 +1,5 @@
 import logger from "../../utils/logger";
-import { Request, Response } from "express"
+import { Request, Response, NextFunction } from "express"
 import { ReportRepositoryInterface } from "../../interfaces/report/report.repository.interface"
 import { generateCsv } from "../../utils/csv"
 import { RentalsReport, PaymentsReport, VehiclesReport } from "../../types/report/report.types"
@@ -7,7 +7,7 @@ import { RentalsReport, PaymentsReport, VehiclesReport } from "../../types/repor
 export class ReportControllerService {
   constructor(private readonly repository: ReportRepositoryInterface) {}
 
-  async getDailySummary(req: Request, res: Response) {
+  async getDailySummary(req: Request, res: Response, next: NextFunction) {
     const isSuperAdmin = req.user!.role === "SuperAdmin"
     const tenantId = isSuperAdmin
       ? (req.query.tenantId as string | undefined)
@@ -24,11 +24,11 @@ export class ReportControllerService {
       return res.status(200).json({ message: "Daily summary retrieved", data })
     } catch (error: any) {
       logger.error({ err: error }, "[ReportController] Error en getDailySummary():")
-      return res.status(500).json({ message: "Server error", error: error.message })
+      return next(error)
     }
   }
 
-  async getReceivables(req: Request, res: Response) {
+  async getReceivables(req: Request, res: Response, next: NextFunction) {
     const isSuperAdmin = req.user!.role === "SuperAdmin"
     const tenantId = isSuperAdmin
       ? (req.query.tenantId as string | undefined)
@@ -39,7 +39,7 @@ export class ReportControllerService {
       return res.status(200).json({ message: "Receivables retrieved", data })
     } catch (error: any) {
       logger.error({ err: error }, "[ReportController] Error en getReceivables():")
-      return res.status(500).json({ message: "Server error", error: error.message })
+      return next(error)
     }
   }
 
@@ -52,7 +52,7 @@ export class ReportControllerService {
     return !d || /^\d{4}-\d{2}-\d{2}$/.test(d)
   }
 
-  async getRentalsReport(req: Request, res: Response) {
+  async getRentalsReport(req: Request, res: Response, next: NextFunction) {
     const tenantId = this.resolveTenantId(req)
     const { dateFrom, dateTo, status, vehicleId, format } = req.query as Record<string, string>
 
@@ -70,11 +70,11 @@ export class ReportControllerService {
       return res.status(200).json({ message: "Rentals report retrieved", data })
     } catch (error: any) {
       logger.error({ err: error }, "[ReportController] Error en getRentalsReport():")
-      return res.status(500).json({ message: "Server error", error: error.message })
+      return next(error)
     }
   }
 
-  async getPaymentsReport(req: Request, res: Response) {
+  async getPaymentsReport(req: Request, res: Response, next: NextFunction) {
     const tenantId = this.resolveTenantId(req)
     const { dateFrom, dateTo, format } = req.query as Record<string, string>
 
@@ -92,11 +92,11 @@ export class ReportControllerService {
       return res.status(200).json({ message: "Payments report retrieved", data })
     } catch (error: any) {
       logger.error({ err: error }, "[ReportController] Error en getPaymentsReport():")
-      return res.status(500).json({ message: "Server error", error: error.message })
+      return next(error)
     }
   }
 
-  async getVehiclesReport(req: Request, res: Response) {
+  async getVehiclesReport(req: Request, res: Response, next: NextFunction) {
     const tenantId = this.resolveTenantId(req)
     const { dateFrom, dateTo, format } = req.query as Record<string, string>
 
@@ -114,7 +114,7 @@ export class ReportControllerService {
       return res.status(200).json({ message: "Vehicles report retrieved", data })
     } catch (error: any) {
       logger.error({ err: error }, "[ReportController] Error en getVehiclesReport():")
-      return res.status(500).json({ message: "Server error", error: error.message })
+      return next(error)
     }
   }
 

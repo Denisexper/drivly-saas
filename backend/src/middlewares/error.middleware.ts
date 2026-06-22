@@ -24,9 +24,8 @@ export const ErrorMiddleware = (
     return res.status(415).json({ ok: false, message: err.message });
   }
 
-  //valores por defecto en caso de desconocer el error
   let status = err.status || 500;
-  let message = err.message || "Internal Server Error";
+  let message = "Internal Server Error";
 
   //errores de prisma
   //P2025: Registro no encontrado(para: update, delete, get)

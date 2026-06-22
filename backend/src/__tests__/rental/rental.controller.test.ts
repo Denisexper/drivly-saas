@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { RentalControllerService } from "../../controllers/rental/rental.controller.service";
 
 jest.mock("../../email/email.service", () => ({
@@ -27,6 +27,8 @@ const makeRes = (): Response => {
   res.json = jest.fn().mockReturnValue(res);
   return res as Response;
 };
+
+const makeNext = (): NextFunction => jest.fn() as unknown as NextFunction;
 
 // ─── Mock del repositorio (cada función como `any` para evitar restricciones de tipo) ───
 
@@ -67,7 +69,7 @@ describe("RentalController.create", () => {
   it("retorna 404 si el vehículo no existe", async () => {
     repo.findVehicle.mockResolvedValue(null);
     const res = makeRes();
-    await controller.create(makeReq({ body: baseBody }), res);
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "Vehicle not found" }));
   });
@@ -75,7 +77,7 @@ describe("RentalController.create", () => {
   it("retorna 409 si el vehículo no está disponible", async () => {
     repo.findVehicle.mockResolvedValue({ ...availableVehicle, status: "Rented" });
     const res = makeRes();
-    await controller.create(makeReq({ body: baseBody }), res);
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
     expect(res.status).toHaveBeenCalledWith(409);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("not available") }));
   });
@@ -84,7 +86,7 @@ describe("RentalController.create", () => {
     repo.findVehicle.mockResolvedValue(availableVehicle);
     repo.findClient.mockResolvedValue(null);
     const res = makeRes();
-    await controller.create(makeReq({ body: baseBody }), res);
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "Client not found" }));
   });
@@ -93,7 +95,7 @@ describe("RentalController.create", () => {
     repo.findVehicle.mockResolvedValue(availableVehicle);
     repo.findClient.mockResolvedValue({ ...activeClient, blacklisted: true });
     const res = makeRes();
-    await controller.create(makeReq({ body: baseBody }), res);
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("blacklisted") }));
   });
@@ -102,7 +104,7 @@ describe("RentalController.create", () => {
     repo.findVehicle.mockResolvedValue(availableVehicle);
     repo.findClient.mockResolvedValue({ ...activeClient, licenseExp: new Date("2020-01-01") });
     const res = makeRes();
-    await controller.create(makeReq({ body: baseBody }), res);
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("license is expired") }));
   });
@@ -112,7 +114,7 @@ describe("RentalController.create", () => {
     repo.findClient.mockResolvedValue(activeClient);
     repo.hasDateConflict.mockResolvedValue(true);
     const res = makeRes();
-    await controller.create(makeReq({ body: baseBody }), res);
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
     expect(res.status).toHaveBeenCalledWith(409);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("date range") }));
   });
@@ -123,7 +125,7 @@ describe("RentalController.create", () => {
     repo.hasDateConflict.mockResolvedValue(false);
     repo.create.mockResolvedValue({ id: "rental-1" });
     const res = makeRes();
-    await controller.create(makeReq({ body: { ...baseBody, discount: 20 } }), res);
+    await controller.create(makeReq({ body: { ...baseBody, discount: 20 } }), res, makeNext());
     expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ totalDays: 4, subtotal: 200, discount: 20, totalAmount: 180 }));
     expect(res.status).toHaveBeenCalledWith(201);
   });
@@ -134,7 +136,7 @@ describe("RentalController.create", () => {
     repo.hasDateConflict.mockResolvedValue(false);
     repo.create.mockResolvedValue({ id: "rental-1" });
     const res = makeRes();
-    await controller.create(makeReq({ body: baseBody }), res);
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
     expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ totalDays: 4, subtotal: 200, discount: 0, totalAmount: 200 }));
   });
 });
@@ -155,7 +157,7 @@ describe("RentalController.update", () => {
   it("retorna 400 si se intenta actualizar un alquiler completado", async () => {
     repo.getById.mockResolvedValue({ id: "rental-1", status: "Completed" });
     const res = makeRes();
-    await controller.update(makeReq({ params: { id: "rental-1" } as any, body: {} }) as any, res);
+    await controller.update(makeReq({ params: { id: "rental-1" } as any, body: {} }) as any, res, makeNext());
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("Completed") }));
   });
@@ -163,14 +165,14 @@ describe("RentalController.update", () => {
   it("retorna 400 si se intenta actualizar un alquiler cancelado", async () => {
     repo.getById.mockResolvedValue({ id: "rental-1", status: "Cancelled" });
     const res = makeRes();
-    await controller.update(makeReq({ params: { id: "rental-1" } as any, body: {} }) as any, res);
+    await controller.update(makeReq({ params: { id: "rental-1" } as any, body: {} }) as any, res, makeNext());
     expect(res.status).toHaveBeenCalledWith(400);
   });
 
   it("retorna 404 si el alquiler no existe", async () => {
     repo.getById.mockResolvedValue(null);
     const res = makeRes();
-    await controller.update(makeReq({ params: { id: "no-existe" } as any, body: {} }) as any, res);
+    await controller.update(makeReq({ params: { id: "no-existe" } as any, body: {} }) as any, res, makeNext());
     expect(res.status).toHaveBeenCalledWith(404);
   });
 });
@@ -191,7 +193,7 @@ describe("RentalController.delete", () => {
   it("retorna 400 si se intenta eliminar un alquiler activo", async () => {
     repo.getById.mockResolvedValue({ id: "rental-1", status: "Active" });
     const res = makeRes();
-    await controller.delete(makeReq({ params: { id: "rental-1" } as any }) as any, res);
+    await controller.delete(makeReq({ params: { id: "rental-1" } as any }) as any, res, makeNext());
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("active") }));
   });
@@ -200,7 +202,7 @@ describe("RentalController.delete", () => {
     repo.getById.mockResolvedValue({ id: "rental-1", status: "Completed" });
     repo.delete.mockResolvedValue({ id: "rental-1" });
     const res = makeRes();
-    await controller.delete(makeReq({ params: { id: "rental-1" } as any }) as any, res);
+    await controller.delete(makeReq({ params: { id: "rental-1" } as any }) as any, res, makeNext());
     expect(repo.delete).toHaveBeenCalledWith("rental-1");
     expect(res.status).toHaveBeenCalledWith(200);
   });

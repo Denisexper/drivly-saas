@@ -21,7 +21,7 @@ export class ClientRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermission("clients:read"),
-      (req: Request, res: Response) => this.ClientController.getAll(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.ClientController.getAll(req, res, next)
     );
     this.router.get(
       "/:id",
@@ -36,7 +36,7 @@ export class ClientRoutes {
       tenantMiddleware,
       checkPermission("clients:create"),
       validate(createClientSchema),
-      (req: Request, res: Response) => this.ClientController.create(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.ClientController.create(req, res, next)
     );
     this.router.put(
       "/:id",
@@ -44,14 +44,14 @@ export class ClientRoutes {
       tenantMiddleware,
       checkPermission("clients:update"),
       validate(updateClientSchema),
-      (req: Request<{ id: string }>, res: Response) => this.ClientController.update(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.ClientController.update(req, res, next)
     );
     this.router.delete(
       "/:id",
       authMiddleware,
       tenantMiddleware,
       checkPermission("clients:delete"),
-      (req: Request<{ id: string }>, res: Response) => this.ClientController.delete(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.ClientController.delete(req, res, next)
     );
 
     return this.router;

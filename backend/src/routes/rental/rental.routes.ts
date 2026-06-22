@@ -33,14 +33,14 @@ export class RentalRoutes {
       authMiddleware,
       tenantMiddleware,
       checkPermissionAny("rentals:read", "payments:create", "payments:read"),
-      (req: Request, res: Response) => this.controller.getAll(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.getAll(req, res, next)
     );
     this.router.get(
       "/:id",
       authMiddleware,
       tenantMiddleware,
       checkPermission("rentals:read"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.getById(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.getById(req, res, next)
     );
     this.router.post(
       "/",
@@ -48,7 +48,7 @@ export class RentalRoutes {
       tenantMiddleware,
       checkPermission("rentals:create"),
       validate(createRentalSchema),
-      (req: Request, res: Response) => this.controller.create(req, res)
+      (req: Request, res: Response, next: NextFunction) => this.controller.create(req, res, next)
     );
     this.router.put(
       "/:id",
@@ -56,24 +56,23 @@ export class RentalRoutes {
       tenantMiddleware,
       checkPermission("rentals:update"),
       validate(updateRentalSchema),
-      (req: Request<{ id: string }>, res: Response) => this.controller.update(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.update(req, res, next)
     );
     this.router.delete(
       "/:id",
       authMiddleware,
       tenantMiddleware,
       checkPermission("rentals:delete"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.delete(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.delete(req, res, next)
     );
     this.router.delete(
       "/:id/force",
       authMiddleware,
       tenantMiddleware,
       checkPermission("rentals:delete"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.forceDelete(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.forceDelete(req, res, next)
     );
 
-    // Photos
     this.router.post(
       "/:id/photos",
       authMiddleware,
@@ -90,22 +89,20 @@ export class RentalRoutes {
       (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.photoController.list(req, res, next)
     );
 
-    // PDF contrato
     this.router.get(
       "/:id/pdf-contract",
       authMiddleware,
       tenantMiddleware,
       checkPermission("rentals:read"),
-      (req: Request<{ id: string }>, res: Response) => this.controller.getPdfContract(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.controller.getPdfContract(req, res, next)
     );
 
-    // Payment summary
     this.router.get(
       "/:id/payment-summary",
       authMiddleware,
       tenantMiddleware,
       checkPermissionAny("rentals:read", "payments:read"),
-      (req: Request<{ id: string }>, res: Response) => this.paymentController.getPaymentSummary(req, res)
+      (req: Request<{ id: string }>, res: Response, next: NextFunction) => this.paymentController.getPaymentSummary(req, res, next)
     );
 
     return this.router;
