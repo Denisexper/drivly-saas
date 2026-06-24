@@ -107,7 +107,7 @@ export class RentalRepository implements RentalRepositoryInterface {
   async forceDelete(id: string): Promise<Rental> {
     return this.prisma.$transaction(async (tx) => {
       const rental = await tx.rental.findUnique({ where: { id } });
-      if (!rental) throw { status: 404, message: "Rental not found" };
+      if (!rental) throw Object.assign(new Error("Rental not found"), { status: 404 });
 
       if (rental.status === "Active") {
         await tx.vehicle.update({
@@ -155,7 +155,7 @@ export class RentalRepository implements RentalRepositoryInterface {
     return this.prisma.$transaction(async (tx) => {
       const rental = await tx.rental.findUnique({ where: { id: rentalId } });
 
-      if (!rental) throw { status: 404, message: "Rental not found" };
+      if (!rental) throw Object.assign(new Error("Rental not found"), { status: 404 });
 
       const cancelled = await tx.rental.update({
         where: { id: rentalId },
@@ -181,7 +181,7 @@ export class RentalRepository implements RentalRepositoryInterface {
     return this.prisma.$transaction(async (tx) => {
       const rental = await tx.rental.findUnique({ where: { id: rentalId } });
 
-      if (!rental) throw { status: 404, message: "Rental not found" };
+      if (!rental) throw Object.assign(new Error("Rental not found"), { status: 404 });
 
       const subtotal = Number(rental.subtotal);
       const discount = Number(rental.discount);
