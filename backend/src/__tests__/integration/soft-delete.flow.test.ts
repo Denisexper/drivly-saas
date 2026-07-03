@@ -70,6 +70,25 @@ describe("DELETE /api/v1/clients/:id (soft delete)", () => {
   });
 });
 
+// ── Rental bloqueado por soft delete ──────────────────────────────────────────
+
+describe("POST /api/v1/rentals - rechazo por entidades eliminadas", () => {
+  it("retorna 404 al intentar crear alquiler con cliente soft-deleted", async () => {
+    const res = await request(app)
+      .post("/api/v1/rentals")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        vehicleId,
+        clientId,
+        startDate: "2027-01-01",
+        endDate: "2027-01-05",
+      });
+
+    expect(res.status).toBe(404);
+    expect(res.body.message).toMatch(/client not found/i);
+  });
+});
+
 // ── Soft delete de vehículo ────────────────────────────────────────────────────
 
 describe("DELETE /api/v1/vehicles/:id (soft delete)", () => {
