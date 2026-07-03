@@ -119,6 +119,23 @@ describe("RentalController.create", () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("date range") }));
   });
 
+  it("retorna 404 si el vehículo fue eliminado (soft delete)", async () => {
+    repo.findVehicle.mockResolvedValue(null);
+    const res = makeRes();
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "Vehicle not found" }));
+  });
+
+  it("retorna 404 si el cliente fue eliminado (soft delete)", async () => {
+    repo.findVehicle.mockResolvedValue(availableVehicle);
+    repo.findClient.mockResolvedValue(null);
+    const res = makeRes();
+    await controller.create(makeReq({ body: baseBody }), res, makeNext());
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "Client not found" }));
+  });
+
   it("crea el alquiler y calcula días, subtotal y total correctamente", async () => {
     repo.findVehicle.mockResolvedValue(availableVehicle);
     repo.findClient.mockResolvedValue(activeClient);
