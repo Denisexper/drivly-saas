@@ -123,7 +123,7 @@ export class RentalRepository implements RentalRepositoryInterface {
   }
 
   async findVehicle(vehicleId: string): Promise<Vehicle | null> {
-    return this.prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    return this.prisma.vehicle.findFirst({ where: { id: vehicleId, deletedAt: null } });
   }
 
   async findClient(clientId: string): Promise<Client | null> {
