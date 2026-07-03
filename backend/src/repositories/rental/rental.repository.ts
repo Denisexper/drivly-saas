@@ -127,7 +127,7 @@ export class RentalRepository implements RentalRepositoryInterface {
   }
 
   async findClient(clientId: string): Promise<Client | null> {
-    return this.prisma.client.findUnique({ where: { id: clientId } });
+    return this.prisma.client.findFirst({ where: { id: clientId, deletedAt: null } });
   }
 
   async hasDateConflict(
