@@ -215,12 +215,20 @@ describe("RentalController.delete", () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining("active") }));
   });
 
-  it("elimina exitosamente un alquiler completado", async () => {
+  it("elimina exitosamente un alquiler completado (soft delete)", async () => {
     repo.getById.mockResolvedValue({ id: "rental-1", status: "Completed" });
-    repo.delete.mockResolvedValue({ id: "rental-1" });
+    repo.delete.mockResolvedValue({ id: "rental-1", deletedAt: new Date() });
     const res = makeRes();
     await controller.delete(makeReq({ params: { id: "rental-1" } as any }) as any, res, makeNext());
     expect(repo.delete).toHaveBeenCalledWith("rental-1");
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("retorna 404 si el alquiler ya fue soft-deleted (getById devuelve null)", async () => {
+    repo.getById.mockResolvedValue(null);
+    const res = makeRes();
+    await controller.delete(makeReq({ params: { id: "rental-1" } as any }) as any, res, makeNext());
+    expect(repo.delete).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(404);
   });
 });

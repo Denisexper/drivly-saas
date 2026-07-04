@@ -15,8 +15,8 @@ export class RentalRepository implements RentalRepositoryInterface {
   }
 
   async getById(id: string): Promise<Rental | null> {
-    return this.prisma.rental.findUnique({
-      where: { id },
+    return this.prisma.rental.findFirst({
+      where: { id, deletedAt: null },
       include: { vehicle: true, client: true, user: { select: { id: true, name: true } }, payments: true },
     });
   }
@@ -60,6 +60,7 @@ export class RentalRepository implements RentalRepositoryInterface {
   async getAll(tenantId?: string, status?: string): Promise<Rental[]> {
     return this.prisma.rental.findMany({
       where: {
+        deletedAt: null,
         ...(tenantId ? { tenantId } : {}),
         ...(status ? { status: status as any } : {}),
       },
@@ -101,7 +102,7 @@ export class RentalRepository implements RentalRepositoryInterface {
   }
 
   async delete(id: string): Promise<Rental> {
-    return this.prisma.rental.delete({ where: { id } });
+    return this.prisma.rental.update({ where: { id }, data: { deletedAt: new Date() } });
   }
 
   async forceDelete(id: string): Promise<Rental> {
