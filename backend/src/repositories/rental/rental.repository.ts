@@ -17,7 +17,7 @@ export class RentalRepository implements RentalRepositoryInterface {
   async getById(id: string): Promise<Rental | null> {
     return this.prisma.rental.findUnique({
       where: { id },
-      include: { vehicle: true, client: true, user: true, payments: true },
+      include: { vehicle: true, client: true, user: { select: { id: true, name: true } }, payments: true },
     });
   }
 
@@ -63,7 +63,7 @@ export class RentalRepository implements RentalRepositoryInterface {
         ...(tenantId ? { tenantId } : {}),
         ...(status ? { status: status as any } : {}),
       },
-      include: { vehicle: true, client: true, user: true },
+      include: { vehicle: true, client: true, user: { select: { id: true, name: true } } },
       orderBy: { createdAt: "desc" },
     });
   }
